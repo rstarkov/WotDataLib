@@ -9,11 +9,11 @@ namespace WotDataLib
     ///     warnings issued while loading the data.</summary>
     public sealed class WotContext
     {
-        internal WotContext(GameInstallation installation, GameVersionConfig versionConfig, IEnumerable<string> warnings, string defaultAuthor)
+        internal WotContext(GameInstallation installation, GameVersionConfig versionConfig, List<string> warnings, string defaultAuthor)
         {
             Installation = installation;
             VersionConfig = versionConfig;
-            Warnings = warnings.ToList();
+            Warnings = warnings;
             Tanks = new List<WotTank>();
             ExtraProperties = new List<ExtraPropertyInfo>();
             DefaultAuthor = defaultAuthor;
