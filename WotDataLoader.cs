@@ -542,7 +542,7 @@ namespace WotDataLib
             // (in game version order).
             // With multiple files, an unversioned entry overrides *everything* inherited from the earlier versions, while a versioned entry
             // overrides *everything* from that version onwards.
-            var resolved = new AutoDictionary<string, HashSet<TankEntry>>(_ => new HashSet<TankEntry>());
+            var resolved = new AutoDictionary<string, List<TankEntry>>(_ => new List<TankEntry>());
             foreach (var builtin in builtins.OrderBy(b => b.FileVersion))
             {
                 // Resolve any instances of the file overriding its own entries, issuing warnings along the way
@@ -567,7 +567,8 @@ namespace WotDataLib
                     }
                 }
 
-                // Apply the file's overrides to the global result
+                // Accumulate the overrides. This contains a bit of a screw-up, in that a single row might omit some of the properties. See comments inside the loop.
+                // As a result of the screw-up, this method doesn't really fully resolve the data and it still needs further resolving...
                 foreach (var cur in builtin.Entries.OrderBy(b => b.GameVersionId == null ? 0 : 1).ThenBy(b => b.Delete ? 0 : 1).ThenBy(b => b.GameVersionId ?? 0))
                 {
                     // Note that due to the OrderBy clause, each of the "if"s below cannot encounter any of the entry types listed below itself belonging to the same file version
@@ -577,26 +578,23 @@ namespace WotDataLib
                     }
                     else if (cur.GameVersionId == null && !cur.Delete) // spell out for clarity
                     {
-                        resolved[cur.TankId].Clear();
+                        // resolved[cur.TankId].Clear(); can't do this because the new entry might have some of the properties set to null, so must keep all the earlier entries and resolve later
                         resolved[cur.TankId].Add(cur);
                     }
                     else if (cur.GameVersionId != null && cur.Delete)
                     {
-                        resolved[cur.TankId].RemoveWhere(e => e.GameVersionId >= cur.GameVersionId);
-                        resolved[cur.TankId].Add(cur);
+                        resolved[cur.TankId].RemoveAll(e => e.GameVersionId >= cur.GameVersionId);
                     }
                     else if (cur.GameVersionId != null && !cur.Delete) // no other options left but for clarity...
                     {
-                        resolved[cur.TankId].RemoveWhere(e => e.GameVersionId >= cur.GameVersionId);
+                        // resolved[cur.TankId].RemoveWhere(e => e.GameVersionId >= cur.GameVersionId); can't do this for the same reason as above
                         resolved[cur.TankId].Add(cur);
                     }
                 }
             }
 
-            return resolved.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.OrderBy(e => e.GameVersionId ?? -1).ToList()
-            );
+            resolved.RemoveAllByValue(v => v.Count == 0);
+            return resolved.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
         private static List<resolvedExtraProperty> resolveExtras(List<string> warnings, List<unresolvedExtraFileCol> extraFileCols, Dictionary<object, string> origFilenames)
