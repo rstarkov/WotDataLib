@@ -14,7 +14,8 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <OutputPath>builds\$(Configuration)\</OutputPath>
     <IntermediateOutputPath>builds\$(Configuration)\obj-$(AssemblyName)\</IntermediateOutputPath>
-    <BaseIntermediateOutputPath>builds\$(Configuration)\obj-$(AssemblyName)\</BaseIntermediateOutputPath></PropertyGroup>
+    <BaseIntermediateOutputPath>builds\$(Configuration)\obj-$(AssemblyName)\</BaseIntermediateOutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -47,6 +48,7 @@
     <Compile Include="GameVersionConfig.cs" />
     <Compile Include="MoReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WdData.cs" />
     <Compile Include="WotDataLoader.cs" />
     <Compile Include="WotTank.cs" />
     <Compile Include="Translation.cs" />

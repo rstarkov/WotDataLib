@@ -73,32 +73,17 @@ namespace WotDataLib
 
         private static Tuple<unresolvedBuiltIn, List<unresolvedExtraFileCol>> loadFromClient(GameInstallation installation, GameVersionConfig versionConfig, List<string> warnings)
         {
-            var splitStringRef = Ut.Lambda((string str) =>
+            var wd = new WdData(installation, versionConfig);
+            warnings.AddRange(wd.Warnings);
+
+            //// Built-in
+            var builtin = new unresolvedBuiltIn();
+            builtin.FileVersion = 0;
+            builtin.Entries = new List<TankEntry>();
+            foreach (var tank in wd.Tanks)
             {
-                var split = str.Split(':');
-                if (split.Length != 2) throw new WotDataException("1618441");
-                if (!split[0].StartsWith("#")) throw new WotDataException("20891");
-                return new { file = split[0].Substring(1), key = split[1] };
-            });
-
-            var countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan" };
-            countries = countries.Where(c => File.Exists(Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", c)))).ToArray();
-
-            var tanks = countries.SelectMany(country =>
-                BxmlReader.ReadFile(Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", country)))
-                .GetDict()
-                .Select(kvp => new { country, id = kvp.Key, raw = kvp.Value })
-            ).ToDictionary(tank => tank.country + "-" + tank.id, tank =>
-            {
-                var tags1 = tank.raw["tags"].GetString().Split("\r\n").Select(s => s.Trim()).ToHashSet();
-                var tags2 = tank.raw["tags"].GetString().Split(' ').Select(s => s.Trim()).ToHashSet();
-                var tags = tags1.Count > tags2.Count ? tags1 : tags2;
-                bool notInShop = tank.raw.ContainsKey("notInShop") && tank.raw["notInShop"].GetBool();
-                bool gold = tank.raw["price"] is JsonDict && tank.raw["price"].ContainsKey("gold");
-                var advancedInfo = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\{1}.xml".Fmt(tank.country, tank.id)));
-
                 Country country;
-                switch (tank.country)
+                switch (tank.Country.Name)
                 {
                     case "ussr": country = Country.USSR; break;
                     case "germany": country = Country.Germany; break;
@@ -108,59 +93,29 @@ namespace WotDataLib
                     case "uk": country = Country.UK; break;
                     case "japan": country = Country.Japan; break;
                     default:
-                        warnings.Add("Unknown country in game data: " + tank.country);
-                        return null;
+                        warnings.Add("Unknown country in game data: " + tank.Country.Name);
+                        continue;
                 }
 
                 Class class_;
-                if (tags.Contains("lightTank"))
-                    class_ = Class.Light;
-                else if (tags.Contains("mediumTank"))
-                    class_ = Class.Medium;
-                else if (tags.Contains("heavyTank"))
-                    class_ = Class.Heavy;
-                else if (tags.Contains("SPG"))
-                    class_ = Class.Artillery;
-                else if (tags.Contains("AT-SPG"))
-                    class_ = Class.Destroyer;
-                else
+                switch (tank.Class)
                 {
-                    warnings.Add("Unknown tank class in game data; tags: " + tags.JoinString(", "));
-                    return null;
+                    case "lightTank": class_ = Class.Light; break;
+                    case "mediumTank": class_ = Class.Medium; break;
+                    case "heavyTank": class_ = Class.Heavy; break;
+                    case "SPG": class_ = Class.Artillery; break;
+                    case "AT-SPG": class_ = Class.Destroyer; break;
+                    default:
+                        warnings.Add("Unknown tank class in game data; tags: " + tank.Tags.JoinString(", "));
+                        continue;
                 }
 
-                return new
-                {
-                    tank.id,
-                    country,
-                    tank.raw,
-                    nameFull = splitStringRef(tank.raw["userString"].GetString()),
-                    nameShort = splitStringRef(tank.raw.ContainsKey("shortUserString") ? tank.raw["shortUserString"].GetString() : tank.raw["userString"].GetString()),
-                    tier = tank.raw["level"].GetInt(),
-                    secret = tags.Contains("secret"),
-                    tags,
-                    notInShop,
-                    gold,
-                    kind = notInShop ? Category.Special : gold ? Category.Premium : Category.Normal,
-                    class_,
-                    speedForward = advancedInfo["speedLimits"]["forward"].GetDecimalLenient(),
-                    speedReverse = advancedInfo["speedLimits"]["backward"].GetDecimalLenient(),
-                };
-            });
+                var kind = tank.NotInShop ? Category.Special : tank.Gold ? Category.Premium : Category.Normal;
 
-            tanks.RemoveAllByValue(tank => tank == null);
-
-            var moFiles = tanks.Select(kvp => kvp.Value.nameFull.file).Concat(tanks.Select(kvp => kvp.Value.nameShort.file)).Distinct()
-                .ToDictionary(filename => filename, filename => MoReader.ReadFile(Path.Combine(installation.Path, versionConfig.PathMoFiles, filename + ".mo")));
-
-            // Generate data
-
-            //// Built-in
-            var builtin = new unresolvedBuiltIn();
-            builtin.FileVersion = 0;
-            builtin.Entries = tanks.Select(tank =>
-                new TankEntry(tank.Key, tank.Value.country, tank.Value.tier, tank.Value.class_, tank.Value.kind, installation.GameVersionId, false)
-            ).ToList();
+                builtin.Entries.Add(
+                    new TankEntry(tank.Id, country, tank.Tier, class_, kind, installation.GameVersionId, false)
+                );
+            }
 
 
             //// NameFull / Wargaming
@@ -172,11 +127,7 @@ namespace WotDataLib
                 { "Ru", "Полные названия танков, оригинал – как в игре." },
                 { "En", "Full tank names, original – like in the game." },
             };
-            nameFull.Entries = tanks.Select(tank =>
-            {
-                try { return new ExtraEntry(tank.Key, moFiles[tank.Value.nameFull.file][tank.Value.nameFull.key], installation.GameVersionId); }
-                catch { return new ExtraEntry(tank.Key, "<no name>", installation.GameVersionId); }
-            }).ToList();
+            nameFull.Entries = wd.Tanks.Select(tank => new ExtraEntry(tank.Id, tank.FullName, installation.GameVersionId)).ToList();
 
 
             //// NameShort / Wargaming
@@ -188,11 +139,7 @@ namespace WotDataLib
                 { "Ru", "Короткие названия танков, оригинал – как в игре." },
                 { "En", "Short tank names, original – like in the game." },
             };
-            nameShort.Entries = tanks.Select(tank =>
-            {
-                try { return new ExtraEntry(tank.Key, moFiles[tank.Value.nameShort.file][tank.Value.nameShort.key], installation.GameVersionId); }
-                catch { return new ExtraEntry(tank.Key, "<no name>", installation.GameVersionId); }
-            }).ToList();
+            nameShort.Entries = wd.Tanks.Select(tank => new ExtraEntry(tank.Id, tank.ShortName, installation.GameVersionId)).ToList();
 
 
             //// Speed: forward
@@ -204,8 +151,8 @@ namespace WotDataLib
                 { "Ru", "Максимальная скорость вперед." },
                 { "En", "Maximum forward speed." },
             };
-            speedForward.Entries = tanks.Select(tank =>
-                new ExtraEntry(tank.Key, tank.Value.speedForward.ToString(), installation.GameVersionId)
+            speedForward.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, tank.MaxSpeedForward.ToString(), installation.GameVersionId)
             ).ToList();
 
 
@@ -218,12 +165,168 @@ namespace WotDataLib
                 { "Ru", "Максимальная скорость назад." },
                 { "En", "Maximum reverse speed." },
             };
-            speedReverse.Entries = tanks.Select(tank =>
-                new ExtraEntry(tank.Key, tank.Value.speedReverse.ToString(), installation.GameVersionId)
+            speedReverse.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, tank.MaxSpeedReverse.ToString(), installation.GameVersionId)
             ).ToList();
 
 
-            return Tuple.Create(builtin, new List<unresolvedExtraFileCol> { nameFull, nameShort, speedForward, speedReverse });
+            //// Armor: hull
+            var armorHull = new unresolvedExtraFileCol();
+            armorHull.PropertyId = new ExtraPropertyId("Armor", "Hull", "Wargaming");
+            armorHull.FileVersion = 0;
+            armorHull.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Бронирование корпуса (перед, бока, зад)." },
+                { "En", "Hull armor thickness (front, sides, rear)." },
+            };
+            var armorStr = Ut.Lambda((decimal? main, decimal? align) =>
+            {
+                if (main == null)
+                    return "";
+                var mainStr = Math.Round(main.Value).ToString();
+                var alignStr = align == null ? "" : Math.Round(align.Value).ToString();
+                return mainStr.PadLeft(Math.Max(mainStr.Length, alignStr.Length));
+            });
+            armorHull.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id,
+                    armorStr(tank.Hull.ArmorThicknessFront, tank.TopTurret.NullOr(t => t.ArmorThicknessFront)) + " " +
+                    armorStr(tank.Hull.ArmorThicknessSide, tank.TopTurret.NullOr(t => t.ArmorThicknessSide)) + " " +
+                    armorStr(tank.Hull.ArmorThicknessBack, tank.TopTurret.NullOr(t => t.ArmorThicknessBack)),
+                    installation.GameVersionId)
+            ).ToList();
+            //// Armor: top turret
+            var armorTurret = new unresolvedExtraFileCol();
+            armorTurret.PropertyId = new ExtraPropertyId("Armor", "Turret", "Wargaming");
+            armorTurret.FileVersion = 0;
+            armorTurret.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Бронирование топ башни (перед, бока, зад)." },
+                { "En", "Top turret armor thickness (front, sides, rear)." },
+            };
+            armorTurret.Entries = wd.Tanks.Where(t => t.TopTurret.Rotates).Select(tank =>
+                new ExtraEntry(tank.Id,
+                    armorStr(tank.TopTurret.NullOr(t => t.ArmorThicknessFront), tank.Hull.ArmorThicknessFront) + " " +
+                    armorStr(tank.TopTurret.NullOr(t => t.ArmorThicknessSide), tank.Hull.ArmorThicknessSide) + " " +
+                    armorStr(tank.TopTurret.NullOr(t => t.ArmorThicknessBack), tank.Hull.ArmorThicknessBack),
+                    installation.GameVersionId)
+            ).ToList();
+
+
+            /// Visibility: top turret
+            var visibility = new unresolvedExtraFileCol();
+            visibility.PropertyId = new ExtraPropertyId("Visibility", "TopTurretBase", "Wargaming");
+            visibility.FileVersion = 0;
+            visibility.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Базовый обзор из топ башни." },
+                { "En", "Base visibility with top turret." },
+            };
+            visibility.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, tank.TopTurret.VisionDistance.ToString(), installation.GameVersionId)
+            ).ToList();
+
+
+            /// Total hit points
+            var hitPointsTotal = new unresolvedExtraFileCol();
+            hitPointsTotal.PropertyId = new ExtraPropertyId("HitPoints", "Tank", "Wargaming");
+            hitPointsTotal.FileVersion = 0;
+            hitPointsTotal.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Прочность танка с топ башней." },
+                { "En", "Tank hit points with the top turret." },
+            };
+            hitPointsTotal.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, (tank.Hull.HitPoints + tank.TopTurret.HitPoints).ToString(), installation.GameVersionId)
+            ).ToList();
+
+
+            /// Has turret
+            var hasTurret = new unresolvedExtraFileCol();
+            hasTurret.PropertyId = new ExtraPropertyId("HasTurret", null, "Wargaming");
+            hasTurret.FileVersion = 0;
+            hasTurret.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Содержит \"*\" для танков, имеющих вращающуюся башню." },
+                { "En", "Contains \"*\" for every tank which has a rotating turret." },
+            };
+            hasTurret.Entries = wd.Tanks.Where(t => t.TopTurret.Rotates).Select(tank =>
+                new ExtraEntry(tank.Id, "*", installation.GameVersionId)
+            ).ToList();
+
+
+            /// Has drum
+            var hasDrumAnyGun = new unresolvedExtraFileCol();
+            hasDrumAnyGun.PropertyId = new ExtraPropertyId("HasDrum", "AnyGun", "Wargaming");
+            hasDrumAnyGun.FileVersion = 0;
+            hasDrumAnyGun.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Содержит \"*\" для танков, имеющих доступ к пушке с барабаном." },
+                { "En", "Contains \"*\" for tanks which have access to a gun with a drum." },
+            };
+            hasDrumAnyGun.Entries = wd.Tanks.Where(t => t.Turrets.Any(r => r.Guns.Any(g => g.HasDrum))).Select(tank =>
+                new ExtraEntry(tank.Id, "*", installation.GameVersionId)
+            ).ToList();
+            /// Has drum
+            var hasDrumTopGun = new unresolvedExtraFileCol();
+            hasDrumTopGun.PropertyId = new ExtraPropertyId("HasDrum", "TopGun", "Wargaming");
+            hasDrumTopGun.FileVersion = 0;
+            hasDrumTopGun.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Содержит \"*\" для танков, чья топовая пушка имеет барабан." },
+                { "En", "Contains \"*\" for tanks whose top gun has a drum." },
+            };
+            hasDrumTopGun.Entries = wd.Tanks.Where(t => t.TopGun.HasDrum).Select(tank =>
+                new ExtraEntry(tank.Id, "*", installation.GameVersionId)
+            ).ToList();
+
+
+            /// Maximum penetration
+            var gunsMaxPenetration = new unresolvedExtraFileCol();
+            gunsMaxPenetration.PropertyId = new ExtraPropertyId("Guns", "MaxPenetration", "Wargaming");
+            gunsMaxPenetration.FileVersion = 0;
+            gunsMaxPenetration.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Пробитие лучшей пушкой/снарядом (кроме голды)." },
+                { "En", "Penetration using the best gun/shell (except premium shells)." },
+            };
+            gunsMaxPenetration.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, (tank.Turrets.SelectMany(t => t.Guns).SelectMany(g => g.Shells).Where(s => !s.Gold).Max(s => s.PenetrationArmor)).ToString(),
+                    installation.GameVersionId)
+            ).ToList();
+
+
+            /// Maximum damage
+            var gunsMaxDamage = new unresolvedExtraFileCol();
+            gunsMaxDamage.PropertyId = new ExtraPropertyId("Guns", "MaxDamage", "Wargaming");
+            gunsMaxDamage.FileVersion = 0;
+            gunsMaxDamage.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Урон лучшей пушкой/снарядом (кроме голды)." },
+                { "En", "Damage using the best gun/shell (except premium shells)." },
+            };
+            gunsMaxDamage.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, (tank.Turrets.SelectMany(t => t.Guns).SelectMany(g => g.Shells).Where(s => !s.Gold).Max(s => s.DamageArmor)).ToString(),
+                    installation.GameVersionId)
+            ).ToList();
+
+
+            /// Damage using the most penetrating shell
+            var gunsMaxPenetrationDamage = new unresolvedExtraFileCol();
+            gunsMaxPenetrationDamage.PropertyId = new ExtraPropertyId("Guns", "MaxPenetrationDamage", "Wargaming");
+            gunsMaxPenetrationDamage.FileVersion = 0;
+            gunsMaxPenetrationDamage.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Урон пушкой/снарядом с лучшим пробитием (кроме голды)." },
+                { "En", "Damage using the most penetrating gun/shell (except premium shells)." },
+            };
+            gunsMaxPenetrationDamage.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, (tank.Turrets.SelectMany(t => t.Guns).SelectMany(g => g.Shells).Where(s => !s.Gold).MaxElement(s => s.PenetrationArmor).DamageArmor).ToString(),
+                    installation.GameVersionId)
+            ).ToList();
+
+
+            return Tuple.Create(builtin, new List<unresolvedExtraFileCol> { nameFull, nameShort, speedForward, speedReverse, armorHull, armorTurret,
+                visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage });
         }
 
         private static Dictionary<string, List<TankEntry>> loadBuiltInFiles(string dataPath, List<string> warnings, unresolvedBuiltIn fromClient)
