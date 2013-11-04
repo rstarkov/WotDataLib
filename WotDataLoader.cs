@@ -468,9 +468,10 @@ namespace WotDataLib
                             case "china": country = Country.China; break;
                             case "france": country = Country.France; break;
                             case "uk": country = Country.UK; break;
+                            case "japan": country = Country.Japan; break;
                             case "none": country = Country.None; break;
                             default: throw new WotDataUserError(WdUtil.Tr.Error.DataFile_UnrecognizedCountry.Fmt(fields[1],
-                                new[] { "ussr", "germany", "usa", "china", "france", "uk", "none" }.JoinString(", ", "\"", "\"")));
+                                new[] { "ussr", "germany", "usa", "china", "france", "uk", "japan", "none" }.JoinString(", ", "\"", "\"")));
                         }
 
                     if (fields.Length > 2 && fields[2] != "")
