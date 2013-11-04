@@ -26,14 +26,20 @@ namespace WotDataLib
             var versionConfig = versionConfigs.Where(v => v.GameVersionId <= installation.GameVersionId.Value).MaxElementOrDefault(v => v.GameVersionId);
             // versionConfig may be null here
 
-            var clientData = loadFromClient(installation, versionConfig, warnings);
+            var wd = new WdData(installation, versionConfig);
+            warnings.AddRange(wd.Warnings);
+
+            var clientData = loadFromClient(wd, installation, warnings);
             var builtin = loadBuiltInFiles(dataPath, warnings, clientData.Item1);
             var extras = loadDataExtraFiles(dataPath, warnings, clientData.Item2);
 
             if (!builtin.Any() || !versionConfigs.Any())
                 warnings.Add(WdUtil.Tr.Error.DataDir_NoFilesAvailable);
 
-            return resolve(installation, versionConfig, builtin, extras, warnings, defaultAuthor);
+            var result = resolve(installation, versionConfig, builtin, extras, warnings, defaultAuthor);
+            foreach (var tank in result.Tanks)
+                tank.ClientData = wd.Tanks.FirstOrDefault(cd => cd.Id == tank.TankId);
+            return result;
         }
 
         private static List<GameVersionConfig> loadGameVersionConfig(string dataPath, List<string> warnings)
@@ -71,11 +77,8 @@ namespace WotDataLib
             return result;
         }
 
-        private static Tuple<unresolvedBuiltIn, List<unresolvedExtraFileCol>> loadFromClient(GameInstallation installation, GameVersionConfig versionConfig, List<string> warnings)
+        private static Tuple<unresolvedBuiltIn, List<unresolvedExtraFileCol>> loadFromClient(WdData wd, GameInstallation installation, List<string> warnings)
         {
-            var wd = new WdData(installation, versionConfig);
-            warnings.AddRange(wd.Warnings);
-
             //// Built-in
             var builtin = new unresolvedBuiltIn();
             builtin.FileVersion = 0;

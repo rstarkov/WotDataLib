@@ -21,6 +21,11 @@ namespace WotDataLib
         /// <summary>Gets the context that this tank info belongs to.</summary>
         public WotContext Context { get; private set; }
 
+        /// <summary>
+        ///     Gets the raw client data for this tank. Note that this information cannot be overridden using CSV files; all
+        ///     values come directly from the game client data.</summary>
+        public WdTank ClientData { get; internal set; }
+
         private Dictionary<ExtraPropertyId, string> _extras;
 
         private WotTank() { }
