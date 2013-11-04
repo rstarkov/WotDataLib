@@ -13,7 +13,7 @@ namespace WotDataLib
 {
     static class WotDataLoader
     {
-        public static WotContext Load(string dataPath, GameInstallation installation, string defaultAuthor)
+        public static WotContext Load(string dataPath, GameInstallation installation, string defaultAuthor, string exportPath)
         {
             if (installation.GameVersionId == null)
                 throw new WotDataUserError("No supported game version detected at the specified installation path.");
@@ -30,6 +30,8 @@ namespace WotDataLib
             warnings.AddRange(wd.Warnings);
 
             var clientData = loadFromClient(wd, installation, warnings);
+            if (exportPath != null)
+                exportClientData(clientData, exportPath);
             var builtin = loadBuiltInFiles(dataPath, warnings, clientData.Item1);
             var extras = loadDataExtraFiles(dataPath, warnings, clientData.Item2);
 
@@ -79,7 +81,7 @@ namespace WotDataLib
 
         private static Tuple<unresolvedBuiltIn, List<unresolvedExtraFileCol>> loadFromClient(WdData wd, GameInstallation installation, List<string> warnings)
         {
-            //// Built-in
+            // Built-in
             var builtin = new unresolvedBuiltIn();
             builtin.FileVersion = 0;
             builtin.Entries = new List<TankEntry>();
@@ -121,7 +123,7 @@ namespace WotDataLib
             }
 
 
-            //// NameFull / Wargaming
+            // NameFull / Wargaming
             var nameFull = new unresolvedExtraFileCol();
             nameFull.PropertyId = new ExtraPropertyId("NameFull", null, "Wargaming");
             nameFull.FileVersion = 0;
@@ -133,7 +135,7 @@ namespace WotDataLib
             nameFull.Entries = wd.Tanks.Select(tank => new ExtraEntry(tank.Id, tank.FullName, installation.GameVersionId)).ToList();
 
 
-            //// NameShort / Wargaming
+            // NameShort / Wargaming
             var nameShort = new unresolvedExtraFileCol();
             nameShort.PropertyId = new ExtraPropertyId("NameShort", null, "Wargaming");
             nameShort.FileVersion = 0;
@@ -145,7 +147,7 @@ namespace WotDataLib
             nameShort.Entries = wd.Tanks.Select(tank => new ExtraEntry(tank.Id, tank.ShortName, installation.GameVersionId)).ToList();
 
 
-            //// Speed: forward
+            // Speed: forward
             var speedForward = new unresolvedExtraFileCol();
             speedForward.PropertyId = new ExtraPropertyId("Speed", "Forward", "Wargaming");
             speedForward.FileVersion = 0;
@@ -159,7 +161,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            //// Speed: reverse
+            // Speed: reverse
             var speedReverse = new unresolvedExtraFileCol();
             speedReverse.PropertyId = new ExtraPropertyId("Speed", "Reverse", "Wargaming");
             speedReverse.FileVersion = 0;
@@ -173,7 +175,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            //// Armor: hull
+            // Armor: hull
             var armorHull = new unresolvedExtraFileCol();
             armorHull.PropertyId = new ExtraPropertyId("Armor", "Hull", "Wargaming");
             armorHull.FileVersion = 0;
@@ -197,7 +199,7 @@ namespace WotDataLib
                     armorStr(tank.Hull.ArmorThicknessBack, tank.TopTurret.NullOr(t => t.ArmorThicknessBack)),
                     installation.GameVersionId)
             ).ToList();
-            //// Armor: top turret
+            // Armor: top turret
             var armorTurret = new unresolvedExtraFileCol();
             armorTurret.PropertyId = new ExtraPropertyId("Armor", "Turret", "Wargaming");
             armorTurret.FileVersion = 0;
@@ -213,9 +215,10 @@ namespace WotDataLib
                     armorStr(tank.TopTurret.NullOr(t => t.ArmorThicknessBack), tank.Hull.ArmorThicknessBack),
                     installation.GameVersionId)
             ).ToList();
+            armorTurret.Entries.RemoveAll(e => e.Value.Trim().Replace(" ", "") == "000");
 
 
-            /// Visibility: top turret
+            // Visibility: top turret
             var visibility = new unresolvedExtraFileCol();
             visibility.PropertyId = new ExtraPropertyId("Visibility", "TopTurretBase", "Wargaming");
             visibility.FileVersion = 0;
@@ -229,7 +232,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Total hit points
+            // Total hit points
             var hitPointsTotal = new unresolvedExtraFileCol();
             hitPointsTotal.PropertyId = new ExtraPropertyId("HitPoints", "Tank", "Wargaming");
             hitPointsTotal.FileVersion = 0;
@@ -243,7 +246,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Has turret
+            // Has turret
             var hasTurret = new unresolvedExtraFileCol();
             hasTurret.PropertyId = new ExtraPropertyId("HasTurret", null, "Wargaming");
             hasTurret.FileVersion = 0;
@@ -257,7 +260,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Has drum
+            // Has drum
             var hasDrumAnyGun = new unresolvedExtraFileCol();
             hasDrumAnyGun.PropertyId = new ExtraPropertyId("HasDrum", "AnyGun", "Wargaming");
             hasDrumAnyGun.FileVersion = 0;
@@ -269,7 +272,7 @@ namespace WotDataLib
             hasDrumAnyGun.Entries = wd.Tanks.Where(t => t.Turrets.Any(r => r.Guns.Any(g => g.HasDrum))).Select(tank =>
                 new ExtraEntry(tank.Id, "*", installation.GameVersionId)
             ).ToList();
-            /// Has drum
+            // Has drum
             var hasDrumTopGun = new unresolvedExtraFileCol();
             hasDrumTopGun.PropertyId = new ExtraPropertyId("HasDrum", "TopGun", "Wargaming");
             hasDrumTopGun.FileVersion = 0;
@@ -283,7 +286,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Maximum penetration
+            // Maximum penetration
             var gunsMaxPenetration = new unresolvedExtraFileCol();
             gunsMaxPenetration.PropertyId = new ExtraPropertyId("Guns", "MaxPenetration", "Wargaming");
             gunsMaxPenetration.FileVersion = 0;
@@ -298,7 +301,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Maximum damage
+            // Maximum damage
             var gunsMaxDamage = new unresolvedExtraFileCol();
             gunsMaxDamage.PropertyId = new ExtraPropertyId("Guns", "MaxDamage", "Wargaming");
             gunsMaxDamage.FileVersion = 0;
@@ -313,7 +316,7 @@ namespace WotDataLib
             ).ToList();
 
 
-            /// Damage using the most penetrating shell
+            // Damage using the most penetrating shell
             var gunsMaxPenetrationDamage = new unresolvedExtraFileCol();
             gunsMaxPenetrationDamage.PropertyId = new ExtraPropertyId("Guns", "MaxPenetrationDamage", "Wargaming");
             gunsMaxPenetrationDamage.FileVersion = 0;
@@ -330,6 +333,95 @@ namespace WotDataLib
 
             return Tuple.Create(builtin, new List<unresolvedExtraFileCol> { nameFull, nameShort, speedForward, speedReverse, armorHull, armorTurret,
                 visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage });
+        }
+
+        private static string csvEscape(string str)
+        {
+            if (str.Contains(',') || str.Contains('"'))
+                return "\"" + str.Replace("\"", "\"\"") + "\"";
+            else
+                return str;
+        }
+
+        private static void exportClientData(Tuple<unresolvedBuiltIn, List<unresolvedExtraFileCol>> data, string path)
+        {
+            try { Directory.CreateDirectory(path); }
+            catch { }
+
+            // Delete all the existing export files
+            foreach (var f in Directory.GetFiles(path, "Exported-WotBuiltIn-*.csv").Concat(Directory.GetFiles(path, "Exported-WotData-*.csv")))
+                try { File.Delete(Path.Combine(path, f)); }
+                catch { }
+
+            // Export built-in
+            try
+            {
+                using (var file = File.Open(Path.Combine(path, "Exported-WotBuiltIn-0.csv"), FileMode.Create, FileAccess.Write, FileShare.Read))
+                using (var sw = new StreamWriter(file))
+                {
+                    sw.WriteLine("WOT-BUILTIN,2");
+                    foreach (var entry in data.Item1.Entries.OrderBy(e => e.TankId))
+                    {
+                        sw.Write(entry.TankId);
+                        sw.Write(',');
+                        if (entry.Country != null)
+                            sw.Write(entry.Country.Value.ToString().ToLowerInvariant());
+                        sw.Write(',');
+                        if (entry.Tier != null)
+                            sw.Write(entry.Tier.Value);
+                        sw.Write(',');
+                        if (entry.Class != null)
+                            sw.Write(entry.Class.Value.ToString().ToLowerInvariant());
+                        sw.Write(',');
+                        if (entry.Category != null)
+                            sw.Write(entry.Category.Value.ToString().ToLowerInvariant());
+                        if (entry.GameVersionId != null)
+                            sw.Write(",#" + entry.GameVersionId.Value);
+                        sw.WriteLine();
+                    }
+                }
+            }
+            catch { }
+
+            // Export extra properties
+            foreach (var properties in data.Item2.GroupBy(p => p.PropertyId.FileId + "-" + p.PropertyId.Author))
+            {
+                try
+                {
+                    var props = properties.OrderBy(p => p.PropertyId.ColumnId ?? "").ToList();
+                    var filename = Path.Combine(path, "Exported-WotData-{0}-0.csv".Fmt(properties.Key));
+                    using (var file = File.Open(filename, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    using (var sw = new StreamWriter(file))
+                    {
+                        sw.WriteLine("WOT-DATA,2");
+                        if (props.Any(p => p.PropertyId.ColumnId != null))
+                            sw.WriteLine("{{ID}}," + props.Select(p => csvEscape(p.PropertyId.ColumnId)).JoinString(","));
+                        foreach (var descLang in props.SelectMany(p => p.Descriptions.Keys).Distinct().Order())
+                            sw.WriteLine("{{" + descLang.ToUpper() + "}}," + props.Select(p => p.Descriptions.ContainsKey(descLang) ? csvEscape(p.Descriptions[descLang]) : "").JoinString(","));
+                        if (props.Any(p => p.InheritsFrom != null))
+                            sw.WriteLine("{{Inherit}}," + props.Select(p => csvEscape(p.InheritsFrom)).JoinString(","));
+                        foreach (var tankId in props.SelectMany(p => p.Entries).Select(e => e.TankId).Distinct().Order())
+                        {
+                            sw.Write(tankId);
+                            int? gameVersionId = null;
+                            foreach (var prop in props)
+                            {
+                                sw.Write(',');
+                                var entry = prop.Entries.Where(e => e.TankId == tankId).FirstOrDefault();
+                                if (entry != null)
+                                {
+                                    sw.Write(csvEscape(entry.Value));
+                                    gameVersionId = gameVersionId ?? entry.GameVersionId;
+                                }
+                            }
+                            if (gameVersionId != null)
+                                sw.Write(",#" + gameVersionId.Value);
+                            sw.WriteLine();
+                        }
+                    }
+                }
+                catch { }
+            }
         }
 
         private static Dictionary<string, List<TankEntry>> loadBuiltInFiles(string dataPath, List<string> warnings, unresolvedBuiltIn fromClient)
@@ -964,7 +1056,8 @@ namespace WotDataLib
             public ExtraPropertyId PropertyId;
             /// <summary>Optional; empty if it wasn't specified.</summary>
             public Dictionary<string, string> Descriptions;
-            /// <summary>The file version of the file this property comes from. Data read from the game itself has this set to 0.</summary>
+            /// <summary>
+            ///     The file version of the file this property comes from. Data read from the game itself has this set to 0.</summary>
             public int FileVersion;
             /// <summary>Optional; null if it wasn't specified.</summary>
             public string InheritsFrom;
