@@ -22,17 +22,21 @@ namespace WotDataLib
         private static Translation _translation = new Translation();
 
         /// <summary>
-        ///     Loads all data from the disk and resolves it as it applies to the specified game installation.</summary>
+        ///     Loads all the game data for the specified installation, and resolves all the CSV file inheritance and
+        ///     overrides as it applies to the specified game installation.</summary>
         /// <param name="dataPath">
         ///     Path to the WotDataLib data files, specifically WotBasic-*, WotData-* and WotGameVersion-*.</param>
         /// <param name="installation">
         ///     Game installation for which the data is to be loaded.</param>
         /// <param name="defaultAuthor">
         ///     Where a property is defined by more than one author and accessed by name alone, specifies the name of the
-        ///     preferred author to be used.</param>
-        public static WotContext Load(string dataPath, GameInstallation installation, string defaultAuthor)
+        ///     preferred author to be used. Passed through directly to <see cref="WotContext.DefaultAuthor"/>.</param>
+        /// <param name="exportPath">
+        ///     The path where all the raw game data is to be exported as CSV files. All overrides are ignored and only the
+        ///     raw data is exported. Pass null to suppress the export.</param>
+        public static WotContext Load(string dataPath, GameInstallation installation, string defaultAuthor, string exportPath)
         {
-            return WotDataLoader.Load(dataPath, installation, defaultAuthor);
+            return WotDataLoader.Load(dataPath, installation, defaultAuthor, exportPath);
         }
     }
 }
