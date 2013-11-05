@@ -92,20 +92,36 @@ namespace WotDataLib
                     foreach (var key in tank.RawExtra["engines"].GetDict().Keys)
                         tank.Engines.Add(country.Engines[key]);
                     foreach (var key in tank.RawExtra["radios"].GetDict().Keys)
-                        tank.Radios.Add(country.Radios[key]);
+                        if (key != "")
+                            tank.Radios.Add(country.Radios[key]);
                 }
                 // Guns are a bit weird; it appears that there's a base definition + turret-specific overrides.
                 foreach (var turret in country.Turrets.Values)
                     foreach (var kvp in turret.Raw["guns"].GetDict())
                     {
+                        if (!country.Guns.ContainsKey(kvp.Key))
+                        {
+                            Warnings.Add("Could not complete gun loading for turret “{0}”, gun “{1}”.".Fmt(turret.Id, kvp.Key));
+                            continue;
+                        }
                         var gun = country.Guns[kvp.Key].Clone();
                         gun.UpdateFrom(kvp.Value.GetDict(), country);
+                        if (turret.Raw.ContainsKey("yawLimits")) // earlier game versions have this data in the turret record
+                        {
+                            var parts = turret.Raw["yawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x)).ToArray();
+                            gun.YawLeftLimit = parts[0]; // not too sure about which is which
+                            gun.YawRightLimit = parts[1];
+                        }
                         turret.Guns.Add(gun);
                     }
             }
+
+            // Clear the string data, since it's no longer needed
+            _moFiles.Clear();
+            _moFiles = null;
         }
 
-        private static Dictionary<string, IDictionary<string, string>> _moFiles = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, IDictionary<string, string>> _moFiles = new Dictionary<string, IDictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
 
         internal string ResolveString(string stringRef)
         {
@@ -119,6 +135,9 @@ namespace WotDataLib
 
             if (!_moFiles.ContainsKey(file))
                 _moFiles[file] = MoReader.ReadFile(Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo"));
+            // for debugging only, since many strings are actually unresolvable for various reasons, e.g. the tank is no longer in the game, or the string is for a pseudo-turret etc.
+            // if (!_moFiles[file].ContainsKey(id))
+            //     Warnings.Add("Could not resolve the string reference “{0}”.".Fmt(stringRef));
             return _moFiles[file].ContainsKey(id) ? _moFiles[file][id] : stringRef;
         }
     }
@@ -165,8 +184,15 @@ namespace WotDataLib
             Guns = new Dictionary<string, WdGun>();
             foreach (var kvp in guns["shared"].GetDict())
             {
-                var gun = new WdGun(kvp.Key, kvp.Value.GetDict(), data, this);
-                Guns.Add(kvp.Key, gun);
+                try
+                {
+                    var gun = new WdGun(kvp.Key, kvp.Value.GetDict(), data, this);
+                    Guns.Add(kvp.Key, gun);
+                }
+                catch
+                {
+                    data.Warnings.Add("Could not load gun data for gun “{0}”".Fmt(kvp.Key));
+                }
             }
 
             Tanks = new Dictionary<string, WdTank>();
@@ -208,7 +234,6 @@ namespace WotDataLib
         public decimal MaxSpeedReverse { get; set; }
 
         public decimal RepairCost { get; set; }
-        public decimal CrewXpFactor { get; set; }
 
         public WdHull Hull { get; set; }
         public IList<WdChassis> Chassis { get; set; }
@@ -261,7 +286,6 @@ namespace WotDataLib
             MaxSpeedReverse = RawExtra["speedLimits"]["backward"].WdDecimal();
 
             RepairCost = RawExtra["repairCost"].WdDecimal();
-            CrewXpFactor = RawExtra["crewXpFactor"].WdDecimal();
 
             Hull = new WdHull(RawExtra["hull"].GetDict());
 
@@ -359,7 +383,7 @@ namespace WotDataLib
         public int Mass { get; set; }
         public int HitPoints { get; set; }
         public decimal RotationSpeed { get; set; }
-        public int VisionDistance { get; set; }
+        public decimal VisionDistance { get; set; }
 
         public decimal ArmorThicknessFront { get; set; }
         public decimal ArmorThicknessSide { get; set; }
@@ -380,7 +404,7 @@ namespace WotDataLib
             Mass = turret["weight"].WdInt();
             HitPoints = turret["maxHealth"].WdInt();
             RotationSpeed = turret["rotationSpeed"].WdDecimal();
-            VisionDistance = turret["circularVisionRadius"].WdInt();
+            VisionDistance = turret["circularVisionRadius"].WdDecimal();
 
             try
             {
@@ -444,7 +468,7 @@ namespace WotDataLib
             Id = id;
             Name = data.ResolveString(radio["userString"].WdString());
 
-            Level = radio["level"].WdInt();
+            Level = (radio.ContainsKey("Level") ? radio["Level"] : radio["level"]).WdInt(); // "Level" used in older clients for at least one radio
             Price = radio["price"].WdInt();
             Mass = radio["weight"].WdInt();
             HitPoints = radio["maxHealth"].WdInt();
@@ -517,7 +541,7 @@ namespace WotDataLib
                 PitchUpLimit = -parts[0];
                 PitchDownLimit = -parts[1];
             }
-            if (initialize || gun.ContainsKey("turretYawLimits"))
+            if (gun.ContainsKey("turretYawLimits")) // earlier game versions have this in the turret data
             {
                 var parts = gun["turretYawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x)).ToArray();
                 YawLeftLimit = parts[0]; // not too sure about which is which

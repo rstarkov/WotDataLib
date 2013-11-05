@@ -19,7 +19,11 @@ namespace WotDataLib
         public static JsonDict ReadFile(string filename)
         {
             using (var reader = new BinaryReader(File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.Read)))
-                return readFile(reader);
+            {
+                var result = readFile(reader);
+                // debug: File.WriteAllText("C:/Temp/WoT/" + filename.FilenameCharactersEscape(), result.ToStringIndented());
+                return result;
+            }
         }
 
         /// <summary>Reads a BXML file from the specified binary reader, returning the result as a JSON structure.</summary>
@@ -130,7 +134,7 @@ namespace WotDataLib
                 case type.Dict:
                     return readDict(reader, strings);
                 case type.String:
-                    return new JsonString(new string(reader.ReadChars(length), 0, length));
+                    return new JsonString(Encoding.UTF8.GetString(reader.ReadBytes(length), 0, length));
                 case type.Int:
                     switch (length)
                     {
