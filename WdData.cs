@@ -343,9 +343,9 @@ namespace WotDataLib
         public int RotationSpeed { get; set; }
         public int TrackArmorThickness { get; set; }
 
-        public decimal TerrainResistanceFirm { get; set; }
-        public decimal TerrainResistanceMedium { get; set; }
-        public decimal TerrainResistanceSoft { get; set; }
+        //public decimal TerrainResistanceFirm { get; set; }
+        //public decimal TerrainResistanceMedium { get; set; }
+        //public decimal TerrainResistanceSoft { get; set; }
 
         public WdChassis(string id, JsonDict chassis, WdData data)
         {
@@ -365,10 +365,10 @@ namespace WotDataLib
             var rightTrack = chassis["armor"]["rightTrack"].WdInt();
             TrackArmorThickness = Math.Max(leftTrack, rightTrack);
 
-            var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s)).ToList();
-            TerrainResistanceFirm = terr[0];
-            TerrainResistanceMedium = terr[1];
-            TerrainResistanceSoft = terr[2];
+            //var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s)).ToList();
+            //TerrainResistanceFirm = terr[0];
+            //TerrainResistanceMedium = terr[1];
+            //TerrainResistanceSoft = terr[2];
         }
     }
 
