@@ -228,7 +228,7 @@ namespace WotDataLib
                 { "En", "Base visibility with top turret." },
             };
             visibility.Entries = wd.Tanks.Select(tank =>
-                new ExtraEntry(tank.Id, tank.TopTurret.VisionDistance.ToString(), installation.GameVersionId)
+                new ExtraEntry(tank.Id, Math.Round(tank.TopTurret.VisionDistance).ToString(), installation.GameVersionId)
             ).ToList();
 
 
