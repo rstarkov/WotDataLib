@@ -19,7 +19,7 @@ namespace WotDataLib
         public Category Category { get; protected set; }
 
         /// <summary>Gets the context that this tank info belongs to.</summary>
-        public WotContext Context { get; private set; }
+        public WotContext Context { get; protected set; }
 
         /// <summary>
         ///     Gets the raw client data for this tank. Note that this information cannot be overridden using CSV files; all
