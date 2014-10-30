@@ -135,11 +135,15 @@ namespace WotDataLib
             var id = split[1];
 
             if (!_moFiles.ContainsKey(file))
-                _moFiles[file] = MoReader.ReadFile(Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo"));
+            {
+                var filename = Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo");
+                if (File.Exists(filename))
+                    _moFiles[file] = MoReader.ReadFile(filename);
+            }
             // for debugging only, since many strings are actually unresolvable for various reasons, e.g. the tank is no longer in the game, or the string is for a pseudo-turret etc.
             // if (!_moFiles[file].ContainsKey(id))
             //     Warnings.Add("Could not resolve the string reference “{0}”.".Fmt(stringRef));
-            return _moFiles[file].ContainsKey(id) ? _moFiles[file][id] : stringRef;
+            return _moFiles.ContainsKey(file) && _moFiles[file].ContainsKey(id) ? _moFiles[file][id] : stringRef;
         }
     }
 
