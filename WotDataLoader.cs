@@ -331,8 +331,23 @@ namespace WotDataLib
             ).ToList();
 
 
+            // Top gun reload time
+            var gunsTopGunReloadTime = new unresolvedExtraFileCol();
+            gunsTopGunReloadTime.PropertyId = new ExtraPropertyId("Guns", "TopGunReloadTime", "Wargaming");
+            gunsTopGunReloadTime.FileVersion = 0;
+            gunsTopGunReloadTime.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Время перезарядки топового орудия." },
+                { "En", "Top gun reload time." },
+            };
+            gunsTopGunReloadTime.Entries = wd.Tanks.Select(tank =>
+                new ExtraEntry(tank.Id, tank.TopGun.ReloadTime.ToString(),
+                    installation.GameVersionId)
+            ).ToList();
+
+
             return Tuple.Create(builtin, new List<unresolvedExtraFileCol> { nameFull, nameShort, speedForward, speedReverse, armorHull, armorTurret,
-                visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage });
+                visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage, gunsTopGunReloadTime });
         }
 
         private static string csvEscape(string str)
