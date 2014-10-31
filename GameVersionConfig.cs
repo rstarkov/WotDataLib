@@ -7,8 +7,8 @@ namespace WotDataLib
     public sealed class GameVersionConfig
     {
         /// <summary>
-        ///     These properties first apply in the game whose build ID is this. This property is deduced from file name,
-        ///     rather than its content.</summary>
+        ///     The properties in this configuration set apply from this game version ID onwards. This property is deduced
+        ///     from file name, rather than its content.</summary>
         [ClassifyIgnore]
         public int GameVersionId { get; internal set; }
 
