@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using RT.Util.Xml;
+using RT.Util.Serialization;
 
 namespace WotDataLib
 {
@@ -18,11 +18,11 @@ namespace WotDataLib
         /// <summary>
         ///     A machine-comparable game version identifier, aka "build ID". Null if the path does not exist or does not
         ///     appear to contain a supported game installation.</summary>
-        [XmlIgnore]
+        [ClassifyIgnore]
         public int? GameVersionId { get; private set; }
 
         /// <summary>A human-readable name of the game version. Null iff the <see cref="GameVersionId"/> is null.</summary>
-        [XmlIgnore]
+        [ClassifyIgnore]
         public string GameVersionName { get; private set; }
 
         protected GameInstallation() { } // for XmlClassify

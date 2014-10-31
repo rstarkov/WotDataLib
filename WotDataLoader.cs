@@ -5,9 +5,8 @@ using System.Linq;
 using RT.Util;
 using RT.Util.Collections;
 using RT.Util.ExtensionMethods;
-using RT.Util.Json;
 using RT.Util.Lingo;
-using RT.Util.Xml;
+using RT.Util.Serialization;
 
 namespace WotDataLib
 {
@@ -66,7 +65,7 @@ namespace WotDataLib
 
                 try
                 {
-                    var ver = XmlClassify.LoadObjectFromXmlFile<GameVersionConfig>(fi.FullName);
+                    var ver = ClassifyXml.DeserializeFile<GameVersionConfig>(fi.FullName);
                     ver.GameVersionId = gameVersionId;
                     result.Add(ver);
                 }

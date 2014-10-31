@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using RT.Util.Xml;
+using RT.Util.Serialization;
 
 namespace WotDataLib
 {
@@ -9,7 +9,7 @@ namespace WotDataLib
         /// <summary>
         ///     These properties first apply in the game whose build ID is this. This property is deduced from file name,
         ///     rather than its content.</summary>
-        [XmlIgnore]
+        [ClassifyIgnore]
         public int GameVersionId { get; internal set; }
 
         /// <summary>Relative path to the root directory containing modding-related files for this specific version.</summary>

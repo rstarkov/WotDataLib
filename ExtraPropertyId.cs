@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Xml.Linq;
 using RT.Util;
-using RT.Util.Xml;
+using RT.Util.Serialization;
 
 namespace WotDataLib
 {
     /// <summary>Identifies an "extra" property. Suitable for use as dictionary keys.</summary>
-    public sealed class ExtraPropertyId : IEquatable<ExtraPropertyId>, IXmlClassifyProcess2
+    public sealed class ExtraPropertyId : IEquatable<ExtraPropertyId>, IClassifyXmlObjectProcessor
     {
         /// <summary>FileId identifies a data file, along with the <see cref="Author"/>. Not null.</summary>
         public string FileId { get; private set; }
@@ -38,7 +38,7 @@ namespace WotDataLib
             return other != null && FileId == other.FileId && ColumnId == other.ColumnId && Author == other.Author;
         }
 
-        [XmlIgnore]
+        [ClassifyIgnore]
         private int _hash = 0;
 
         public override int GetHashCode()
@@ -69,10 +69,10 @@ namespace WotDataLib
             return !(a == b);
         }
 
-        void IXmlClassifyProcess2.AfterXmlDeclassify(XElement xml)
+        void IClassifyObjectProcessor<XElement>.AfterDeserialize(XElement element)
         {
-            var name = xml.Element("Name").NullOr(v => v.Value);
-            var author = xml.Element("Author").NullOr(v => v.Value);
+            var name = element.Element("Name").NullOr(v => v.Value);
+            var author = element.Element("Author").NullOr(v => v.Value);
 
             if (name == "NameShortWG" && author == "Romkyns")
             {
@@ -99,8 +99,8 @@ namespace WotDataLib
             }
         }
 
-        void IXmlClassifyProcess2.AfterXmlClassify(XElement xml) { }
-        void IXmlClassifyProcess2.BeforeXmlClassify(XElement xml) { }
-        void IXmlClassifyProcess2.BeforeXmlDeclassify(XElement xml) { }
+        void IClassifyObjectProcessor<XElement>.AfterSerialize(XElement element) { }
+        void IClassifyObjectProcessor<XElement>.BeforeDeserialize(XElement element) { }
+        void IClassifyObjectProcessor<XElement>.BeforeSerialize() { }
     }
 }
