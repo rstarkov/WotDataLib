@@ -6,6 +6,7 @@ namespace WotDataLib
     {
         public WotDataException() { }
         public WotDataException(string message) : base(message) { }
+        public WotDataException(string message, Exception inner) : base(message, inner) { }
     }
 
     public class WotDataUserError : WotDataException
