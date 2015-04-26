@@ -35,50 +35,37 @@ namespace WotDataLib
 
                 path = Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", country));
                 try { tanks = BxmlReader.ReadFile(path); }
-                catch (Exception e)
-                {
-                    Warnings.Add("Couldn't read vehicle list for country \"{0}\" from file \"{1}\": {2}".Fmt(country, path, e.Message));
-                    continue;
-                }
+                catch (Exception e) { throw new WotDataException("Couldn't read vehicle list for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\engines.xml").Fmt(country);
                 try { engines = BxmlReader.ReadFile(path); }
-                catch (Exception e)
-                {
-                    Warnings.Add("Couldn't read engines data for country \"{0}\" from file \"{1}\": {2}".Fmt(country, path, e.Message));
-                    continue;
-                }
+                catch (Exception e) { throw new WotDataException("Couldn't read engines data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\guns.xml").Fmt(country);
                 try { guns = BxmlReader.ReadFile(path); }
-                catch (Exception e)
-                {
-                    Warnings.Add("Couldn't read guns data for country \"{0}\" from file \"{1}\": {2}".Fmt(country, path, e.Message));
-                    continue;
-                }
+                catch (Exception e) { throw new WotDataException("Couldn't read guns data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\radios.xml").Fmt(country);
                 try { radios = BxmlReader.ReadFile(path); }
-                catch (Exception e)
-                {
-                    Warnings.Add("Couldn't read radios data for country \"{0}\" from file \"{1}\": {2}".Fmt(country, path, e.Message));
-                    continue;
-                }
+                catch (Exception e) { throw new WotDataException("Couldn't read radios data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\shells.xml").Fmt(country);
                 try { shells = BxmlReader.ReadFile(path); }
-                catch (Exception e)
-                {
-                    Warnings.Add("Couldn't read shells data for country \"{0}\" from file \"{1}\": {2}".Fmt(country, path, e.Message));
-                    continue;
-                }
+                catch (Exception e) { throw new WotDataException("Couldn't read shells data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 // Nothing interesting in these:
                 //chassis = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\chassis.xml").Fmt(country));
                 //turrets = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\turrets.xml").Fmt(country));
                 // Observe that these are the exact same pieces of information that are available directly in the vehicle definition (parsed in WdTank)
 
-                Countries.Add(country, new WdCountry(country, this, tanks, engines, guns, radios, shells));
+                try
+                {
+                    Countries.Add(country, new WdCountry(country, this, tanks, engines, guns, radios, shells));
+                }
+                catch (Exception e)
+                {
+                    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(country), e);
+                }
             }
 
             foreach (var country in Countries.Values)
