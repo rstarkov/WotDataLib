@@ -102,6 +102,10 @@ namespace WotDataLib
                         }
                         turret.Guns.Add(gun);
                     }
+                // Validate that the guns loaded fully
+                foreach (var gun in country.Guns.Values)
+                    try { gun.Validate(); }
+                    catch (Exception e) { Warnings.Add("Incomplete data for gun “{0}”: {1}".Fmt(gun.Id, e.Message)); }
             }
 
             // Clear the string data, since it's no longer needed
@@ -500,6 +504,8 @@ namespace WotDataLib
             Id = id;
             Name = data.ResolveString(gun["userString"].WdString());
             Shells = new List<WdShell>();
+            PitchUpLimit = -999;
+            PitchDownLimit = -999;
             UpdateFrom(gun, country, initialize: true);
         }
 
@@ -510,7 +516,14 @@ namespace WotDataLib
             return result;
         }
 
-        /// <remarks>This method requires the shell data to already be fully loaded.</remarks>
+        internal void Validate()
+        {
+            if (PitchUpLimit == -999 || PitchDownLimit == -999)
+                throw new Exception("No pitch up/down information found for this gun.");
+        }
+
+        /// <remarks>
+        ///     This method requires the shell data to already be fully loaded.</remarks>
         /// <param name="initialize">
         ///     Forces all parameters to be loaded, producing an exception if anything important is missing.</param>
         internal void UpdateFrom(JsonDict gun, WdCountry country, bool initialize = false)
@@ -529,9 +542,21 @@ namespace WotDataLib
 
             if (initialize || gun.ContainsKey("pitchLimits"))
             {
-                var parts = gun["pitchLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).ToArray();
-                PitchUpLimit = -parts[0];
-                PitchDownLimit = -parts[1];
+                if (gun["pitchLimits"] is JsonDict)
+                {
+                    // new-style limits in 0.9.9 and later
+                    if (gun["pitchLimits"].ContainsKey("minPitch"))
+                        PitchUpLimit = -gun["pitchLimits"]["minPitch"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).Min();
+                    if (gun["pitchLimits"].ContainsKey("maxPitch"))
+                        PitchDownLimit = -gun["pitchLimits"]["maxPitch"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).Max();
+                }
+                else
+                {
+                    // old-style limits before 0.9.9
+                    var parts = gun["pitchLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                    PitchUpLimit = -parts[0];
+                    PitchDownLimit = -parts[1];
+                }
             }
             if (gun.ContainsKey("turretYawLimits")) // earlier game versions have this in the turret data
             {
