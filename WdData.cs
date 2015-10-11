@@ -546,9 +546,9 @@ namespace WotDataLib
                 {
                     // new-style limits in 0.9.9 and later
                     if (gun["pitchLimits"].ContainsKey("minPitch"))
-                        PitchUpLimit = -gun["pitchLimits"]["minPitch"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).Min();
+                        PitchUpLimit = (gun["pitchLimits"]["minPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["minPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, CultureInfo.InvariantCulture)).Min();
                     if (gun["pitchLimits"].ContainsKey("maxPitch"))
-                        PitchDownLimit = -gun["pitchLimits"]["maxPitch"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).Max();
+                        PitchDownLimit = (gun["pitchLimits"]["maxPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["maxPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, CultureInfo.InvariantCulture)).Max();
                 }
                 else
                 {
