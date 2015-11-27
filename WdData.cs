@@ -58,14 +58,14 @@ namespace WotDataLib
                 //turrets = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\turrets.xml").Fmt(country));
                 // Observe that these are the exact same pieces of information that are available directly in the vehicle definition (parsed in WdTank)
 
-                try
+                //try
                 {
                     Countries.Add(country, new WdCountry(country, this, tanks, engines, guns, radios, shells));
                 }
-                catch (Exception e)
-                {
-                    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(country), e);
-                }
+                //catch (Exception e)
+                //{
+                //    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(country), e);
+                //}
             }
 
             foreach (var country in Countries.Values)
@@ -427,7 +427,7 @@ namespace WotDataLib
         public int Level { get; set; }
         public int Price { get; set; }
         public int Mass { get; set; }
-        public int HitPoints { get; set; }
+        public decimal HitPoints { get; set; }
         public int Power { get; set; }
         public decimal FireStartChance { get; set; }
 
@@ -440,7 +440,7 @@ namespace WotDataLib
             Level = engine["level"].WdInt();
             Price = engine["price"].WdInt();
             Mass = engine["weight"].WdInt();
-            HitPoints = engine["maxHealth"].WdInt();
+            HitPoints = engine["maxHealth"].WdDecimal();
             Power = engine["power"].WdInt();
             FireStartChance = engine["fireStartingChance"].WdDecimal();
         }
