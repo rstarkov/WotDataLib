@@ -58,14 +58,14 @@ namespace WotDataLib
                 //turrets = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\turrets.xml").Fmt(country));
                 // Observe that these are the exact same pieces of information that are available directly in the vehicle definition (parsed in WdTank)
 
-                //try
+                try
                 {
                     Countries.Add(country, new WdCountry(country, this, tanks, engines, guns, radios, shells));
                 }
-                //catch (Exception e)
-                //{
-                //    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(country), e);
-                //}
+                catch (Exception e)
+                {
+                    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(country), e);
+                }
             }
 
             foreach (var country in Countries.Values)
