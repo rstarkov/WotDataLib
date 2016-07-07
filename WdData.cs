@@ -25,7 +25,7 @@ namespace WotDataLib
             Installation = installation;
             VersionConfig = versionConfig;
 
-            IList<string> countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan", "czech" };
+            IList<string> countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan", "czech", "sweden" };
             countries = countries.Where(c => File.Exists(Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", c)))).ToList();
 
             foreach (var country in countries)

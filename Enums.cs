@@ -13,6 +13,7 @@ namespace WotDataLib
         UK,
         Japan,
         Czech,
+        Sweden,
         None,
     }
 
