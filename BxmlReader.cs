@@ -139,13 +139,13 @@ namespace WotDataLib
                     switch (length)
                     {
                         case 0:
-                            return new JsonNumber(0);
+                            return 0;
                         case 1:
-                            return new JsonNumber(reader.ReadSByte());
+                            return reader.ReadSByte();
                         case 2:
-                            return new JsonNumber(reader.ReadInt16());
+                            return reader.ReadInt16();
                         case 4:
-                            return new JsonNumber(reader.ReadInt32());
+                            return reader.ReadInt32();
                         default:
                             throw new WotDataException("Unexpected length for Int");
                     }
