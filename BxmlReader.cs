@@ -26,6 +26,21 @@ namespace WotDataLib
             }
         }
 
+        /// <summary>
+        ///     Reads a BXML file from the specified stream, returning the result as a JSON structure. See remarks.</summary>
+        /// <remarks>
+        ///     The WoT data files do not have a consistent type for all the numbers. Expect to see raw numbers (like
+        ///     <c>5.7</c>) mixed freely with string numbers (like <c>"5.7"</c>).</remarks>
+        public static JsonDict ReadFile(Stream file)
+        {
+            using (var reader = new BinaryReader(file))
+            {
+                var result = readFile(reader);
+                // debug: File.WriteAllText("C:/Temp/WoT/" + filename.FilenameCharactersEscape(), result.ToStringIndented());
+                return result;
+            }
+        }
+
         /// <summary>Reads a BXML file from the specified binary reader, returning the result as a JSON structure.</summary>
         private static JsonDict readFile(BinaryReader reader)
         {

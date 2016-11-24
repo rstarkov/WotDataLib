@@ -26,36 +26,72 @@ namespace WotDataLib
             VersionConfig = versionConfig;
 
             IList<string> countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan", "czech", "sweden" };
-            countries = countries.Where(c => File.Exists(Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", c)))).ToList();
+            countries =
+                countries.Where(
+                    c =>
+                        WotFileExporter.Exists(WotFileExporter.CombinePaths(installation.Path,
+                            versionConfig.PathVehicleList.Replace(@"""Country""", c)))).ToList();
+
+            string scriptsFolder = string.IsNullOrEmpty(versionConfig.PathSourceScripts) ? @"res\scripts" : versionConfig.PathSourceScripts;
 
             foreach (var country in countries)
             {
                 JsonDict tanks, engines, guns, radios, shells;
                 string path;
 
-                path = Path.Combine(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", country));
-                try { tanks = BxmlReader.ReadFile(path); }
+                path = WotFileExporter.CombinePaths(installation.Path, versionConfig.PathVehicleList.Replace(@"""Country""", country));
+                try
+                {
+                    using (var stream = WotFileExporter.GetFileStream(path))
+                    {
+                        tanks = BxmlReader.ReadFile(stream);
+                    }
+                }
                 catch (Exception e) { throw new WotDataException("Couldn't read vehicle list for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
-                path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\engines.xml").Fmt(country);
-                try { engines = BxmlReader.ReadFile(path); }
+                path = WotFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\engines.xml").Fmt(country);
+                try
+                {
+                    using (var stream = WotFileExporter.GetFileStream(path))
+                    {
+                        engines = BxmlReader.ReadFile(stream);
+                    }
+                }
                 catch (Exception e) { throw new WotDataException("Couldn't read engines data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
-                path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\guns.xml").Fmt(country);
-                try { guns = BxmlReader.ReadFile(path); }
+                path = WotFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\guns.xml").Fmt(country);
+                try
+                {
+                    using (var stream = WotFileExporter.GetFileStream(path))
+                    {
+                        guns = BxmlReader.ReadFile(stream);
+                    }
+                }
                 catch (Exception e) { throw new WotDataException("Couldn't read guns data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
-                path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\radios.xml").Fmt(country);
-                try { radios = BxmlReader.ReadFile(path); }
+                path = WotFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\radios.xml").Fmt(country);
+                try
+                {
+                    using (var stream = WotFileExporter.GetFileStream(path))
+                    {
+                        radios = BxmlReader.ReadFile(stream);
+                    }
+                }
                 catch (Exception e) { throw new WotDataException("Couldn't read radios data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
-                path = Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\shells.xml").Fmt(country);
-                try { shells = BxmlReader.ReadFile(path); }
+                path = WotFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\shells.xml").Fmt(country);
+                try
+                {
+                    using (var stream = WotFileExporter.GetFileStream(path))
+                    {
+                        shells = BxmlReader.ReadFile(stream);
+                    }
+                }
                 catch (Exception e) { throw new WotDataException("Couldn't read shells data for country \"{0}\" from file \"{1}\"".Fmt(country, path), e); }
 
                 // Nothing interesting in these:
-                //chassis = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\chassis.xml").Fmt(country));
-                //turrets = BxmlReader.ReadFile(Path.Combine(installation.Path, @"res\scripts\item_defs\vehicles\{0}\components\turrets.xml").Fmt(country));
+                //chassis = BxmlReader.ReadFile(ZipFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\chassis.xml").Fmt(country));
+                //turrets = BxmlReader.ReadFile(ZipFileExporter.CombinePaths(installation.Path, scriptsFolder, @"item_defs\vehicles\{0}\components\turrets.xml").Fmt(country));
                 // Observe that these are the exact same pieces of information that are available directly in the vehicle definition (parsed in WdTank)
 
                 try
@@ -271,8 +307,14 @@ namespace WotDataLib
 
             Tier = Raw["level"].WdInt();
             Secret = Tags.Contains("secret");
+            string scriptsFolder = string.IsNullOrEmpty(data.VersionConfig.PathSourceScripts) ? @"res\scripts" : data.VersionConfig.PathSourceScripts;
 
-            RawExtra = BxmlReader.ReadFile(Path.Combine(data.Installation.Path, @"res\scripts\item_defs\vehicles\{0}\{1}.xml".Fmt(Country.Name, id)));
+            var path = WotFileExporter.CombinePaths(data.Installation.Path, scriptsFolder,
+                @"item_defs\vehicles\{0}\{1}.xml".Fmt(Country.Name, id));
+            using (var stream = WotFileExporter.GetFileStream(path))
+            {
+                RawExtra = BxmlReader.ReadFile(stream);
+            }
 
             FullName = data.ResolveString(Raw["userString"].WdString());
             ShortName = Raw.ContainsKey("shortUserString") ? data.ResolveString(Raw["shortUserString"].WdString()) : FullName;
