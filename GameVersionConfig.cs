@@ -27,6 +27,11 @@ namespace WotDataLib
 
         public string PathSourceAtlas { get; private set; }
         /// <summary>
+        ///     Pelative path to the directory containing scripts (including "scripts" folder). May refer to a zip file with a 
+        ///     colon separating the path within the zip.
+        /// </summary>
+        public string PathSourceScripts { get; private set; }
+        /// <summary>
         ///     Relative path to the directory containing 3D tank images. May refer to a zip file with a colon separating the
         ///     path within the zip.</summary>
         public string PathSource3D { get; private set; }

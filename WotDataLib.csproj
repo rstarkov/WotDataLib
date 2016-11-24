@@ -30,6 +30,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.5.0, Culture=neutral, PublicKeyToken=9dea7c6e17aa31ff, processorArchitecture=MSIL">
+      <HintPath>..\packages\ICSharpCode.SharpZipLib.Patched.0.86.5\lib\net20\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="RT.Util, Version=1.0.1542.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\RT.Util.1.0.1542\lib\net40-client\RT.Util.dll</HintPath>
       <Private>True</Private>
@@ -41,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BxmlReader.cs" />
+    <Compile Include="Cache.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="ExtraPropertyId.cs" />
@@ -56,6 +61,7 @@
     <Compile Include="WdUtil.cs" />
     <Compile Include="WotContext.cs" />
     <Compile Include="WotData.cs" />
+    <Compile Include="WotFileExporter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
