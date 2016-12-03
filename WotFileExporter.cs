@@ -28,7 +28,7 @@ namespace WotDataLib
         }
 
         /// <summary>
-        /// Path.Exist with zipped file support
+        /// File.Exist with zipped file support
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
@@ -37,6 +37,10 @@ namespace WotDataLib
             if (path.Contains("|"))
             {
                 var paths = path.Split('|');
+                if (!File.Exists(paths[0]))
+                {
+                    return false;
+                }
                 var zip = new ZipFile(paths[0]);
                 var entry = zip.GetEntry(paths[1].Replace('\\', '/'));
                 return entry != null;
