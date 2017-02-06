@@ -50,6 +50,7 @@ namespace WotDataLib
             Category = tank.Category;
             Context = tank.Context;
             _extras = tank._extras;
+            ClientData = tank.ClientData;
         }
 
         /// <summary>
