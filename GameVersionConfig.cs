@@ -20,6 +20,8 @@ namespace WotDataLib
         public string PathMoFiles { get; private set; }
         /// <summary>Relative path to the directory containing the tank icons we're creating.</summary>
         public string PathDestination { get; private set; }
+        /// <summary>Relative path to the directory containing the tank icons atlas we're creating.</summary>
+        public string PathDestinationAtlas { get; private set; }
         /// <summary>
         ///     Relative path to the directory containing contour tank images. May refer to a zip file with a colon separating
         ///     the path within the zip.</summary>
