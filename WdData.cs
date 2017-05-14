@@ -132,7 +132,7 @@ namespace WotDataLib
                         gun.UpdateFrom(kvp.Value.GetDict(), country);
                         if (turret.Raw.ContainsKey("yawLimits")) // earlier game versions have this data in the turret record
                         {
-                            var parts = turret.Raw["yawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                            var parts = turret.Raw["yawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray();
                             gun.YawLeftLimit = parts[0]; // not too sure about which is which
                             gun.YawRightLimit = parts[1];
                         }
@@ -403,7 +403,7 @@ namespace WotDataLib
             var rightTrack = chassis["armor"]["rightTrack"].WdInt();
             TrackArmorThickness = Math.Max(leftTrack, rightTrack);
 
-            var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, CultureInfo.InvariantCulture)).ToList();
+            var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
             TerrainResistanceFirm = terr[0];
             TerrainResistanceMedium = terr[1];
             TerrainResistanceSoft = terr[2];
@@ -588,21 +588,21 @@ namespace WotDataLib
                 {
                     // new-style limits in 0.9.9 and later
                     if (gun["pitchLimits"].ContainsKey("minPitch"))
-                        PitchUpLimit = (gun["pitchLimits"]["minPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["minPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, CultureInfo.InvariantCulture)).Min();
+                        PitchUpLimit = (gun["pitchLimits"]["minPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["minPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).Min();
                     if (gun["pitchLimits"].ContainsKey("maxPitch"))
-                        PitchDownLimit = (gun["pitchLimits"]["maxPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["maxPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, CultureInfo.InvariantCulture)).Max();
+                        PitchDownLimit = (gun["pitchLimits"]["maxPitch"].WdString() == "") ? 0 : -gun["pitchLimits"]["maxPitch"].WdString().Split(' ').Select(x => (x == "") ? 0 : decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).Max();
                 }
                 else
                 {
                     // old-style limits before 0.9.9
-                    var parts = gun["pitchLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                    var parts = gun["pitchLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray();
                     PitchUpLimit = -parts[0];
                     PitchDownLimit = -parts[1];
                 }
             }
             if (gun.ContainsKey("turretYawLimits")) // earlier game versions have this in the turret data
             {
-                var parts = gun["turretYawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, CultureInfo.InvariantCulture)).ToArray();
+                var parts = gun["turretYawLimits"].WdString().Split(' ').Select(x => decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray();
                 YawLeftLimit = parts[0]; // not too sure about which is which
                 YawRightLimit = parts[1];
             }
@@ -675,7 +675,7 @@ namespace WotDataLib
         internal void AddGunSpecific(JsonDict shell)
         {
             Speed = shell["speed"].WdInt();
-            PenetrationArmor = decimal.Parse(shell["piercingPower"].WdString().Split(' ')[0], CultureInfo.InvariantCulture);
+            PenetrationArmor = decimal.Parse(shell["piercingPower"].WdString().Split(' ')[0], NumberStyles.Float, CultureInfo.InvariantCulture);
         }
     }
 
