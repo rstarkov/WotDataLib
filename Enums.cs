@@ -14,6 +14,7 @@ namespace WotDataLib
         Japan,
         Czech,
         Sweden,
+		Poland,
         None,
     }
 
