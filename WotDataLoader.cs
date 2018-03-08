@@ -99,6 +99,7 @@ namespace WotDataLib
                     case "czech": country = Country.Czech; break;
                     case "sweden": country = Country.Sweden; break;
                     case "poland": country = Country.Poland; break;
+                    case "italy": country = Country.Italy; break;
                     default:
                         warnings.Add("Unknown country in game data: " + tank.Country.Name);
                         continue;
