@@ -234,6 +234,8 @@ namespace WotDataLib
             {
                 if (Name == "usa" && kvp.Key == "Sexton_I")
                     continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
+                if (Name == "usa" && kvp.Key == "xmlns:xmlref")
+                    continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
                 var tank = new WdTank(kvp.Key, kvp.Value.GetDict(), this, data);
                 Tanks.Add(tank.RawId, tank);
             }
