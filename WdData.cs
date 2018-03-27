@@ -232,9 +232,7 @@ namespace WotDataLib
             Turrets = new Dictionary<string, WdTurret>();
             foreach (var kvp in tanks.GetDict())
             {
-                if (Name == "japan" && kvp.Key == "xmlns:xmlref")
-                    continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
-                if (Name == "usa" && kvp.Key == "xmlns:xmlref")
+                if (kvp.Key == "xmlns:xmlref")
                     continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
                 var tank = new WdTank(kvp.Key, kvp.Value.GetDict(), this, data);
                 Tanks.Add(tank.RawId, tank);
