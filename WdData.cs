@@ -470,8 +470,7 @@ namespace WotDataLib
         public int Price { get; set; }
         public int Mass { get; set; }
         public decimal HitPoints { get; set; }
-        // Return after 1.0.2.1: public int Power { get; set; }
-        public decimal Power { get; set; }
+        public int Power { get; set; }
         public decimal FireStartChance { get; set; }
 
         public WdEngine(string id, JsonDict engine, WdData data)
@@ -484,8 +483,7 @@ namespace WotDataLib
             Price = engine["price"].WdInt();
             Mass = engine["weight"].WdInt();
             HitPoints = engine["maxHealth"].WdDecimal();
-            // Return after 1.0.2.1: Power = engine["power"].WdInt();
-            Power = engine["power"].WdDecimal();
+            Power = engine["power"].WdInt();
             FireStartChance = engine["fireStartingChance"].WdDecimal();
         }
     }
