@@ -399,9 +399,17 @@ namespace WotDataLib
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
             RotationSpeed = chassis["rotationSpeed"].WdInt();
 
-            var leftTrack = chassis["armor"]["leftTrack"].WdInt();
-            var rightTrack = chassis["armor"]["rightTrack"].WdInt();
-            TrackArmorThickness = Math.Max(leftTrack, rightTrack);
+            try
+            {
+                var leftTrack = chassis["armor"]["leftTrack"].WdInt();
+                var rightTrack = chassis["armor"]["rightTrack"].WdInt();
+                TrackArmorThickness = Math.Max(leftTrack, rightTrack);
+            }
+            catch
+            {
+                var wheelArmor = chassis["armor"]["wheel"].WdInt();
+                TrackArmorThickness = wheelArmor;
+            }
 
             var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
             TerrainResistanceFirm = terr[0];
