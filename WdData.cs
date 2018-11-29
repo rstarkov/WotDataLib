@@ -407,7 +407,7 @@ namespace WotDataLib
             }
             catch
             {
-                var wheelArmor = chassis["armor"]["wheel"].WdInt();
+                var wheelArmor = chassis["armor"]["armor_9"].WdInt();
                 TrackArmorThickness = wheelArmor;
             }
 
