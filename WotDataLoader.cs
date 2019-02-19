@@ -289,6 +289,20 @@ namespace WotDataLib
             ).ToList();
 
 
+            // Has wheels
+            var hasWheels = new unresolvedExtraFileCol();
+            hasWheels.PropertyId = new ExtraPropertyId("HasWheels", null, "Wargaming");
+            hasWheels.FileVersion = 0;
+            hasWheels.Descriptions = new Dictionary<string, string>
+            {
+                { "Ru", "Содержит \"*\" для колесной техники, пусто для остальной техники." },
+                { "En", "Contains \"*\" for wheeled vehicles, empty for the rest of the vehicle" },
+            };
+            hasWheels.Entries = wd.Tanks.Where(t => t.Chassis.Any(c => c.HasWheels)).Select(tank =>
+                new ExtraEntry(tank.Id, "*", installation.GameVersionId)
+            ).ToList();
+
+
             // Maximum penetration
             var gunsMaxPenetration = new unresolvedExtraFileCol();
             gunsMaxPenetration.PropertyId = new ExtraPropertyId("Guns", "MaxPenetration", "Wargaming");
@@ -350,7 +364,7 @@ namespace WotDataLib
 
 
             return Tuple.Create(builtin, new List<unresolvedExtraFileCol> { nameFull, nameShort, speedForward, speedReverse, armorHull, armorTurret,
-                visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage, gunsTopGunReloadTime });
+                visibility, hitPointsTotal, hasTurret, hasDrumAnyGun, hasDrumTopGun, hasWheels, gunsMaxPenetration, gunsMaxDamage, gunsMaxPenetrationDamage, gunsTopGunReloadTime });
         }
 
         private static string csvEscape(string str)
