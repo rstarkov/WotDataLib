@@ -202,6 +202,8 @@ namespace WotDataLib
                     armorStr(tank.Hull.ArmorThicknessBack, tank.TopTurret.NullOr(t => t.ArmorThicknessBack)),
                     installation.GameVersionId)
             ).ToList();
+
+
             // Armor: top turret
             var armorTurret = new unresolvedExtraFileCol();
             armorTurret.PropertyId = new ExtraPropertyId("Armor", "Turret", "Wargaming");
@@ -275,6 +277,8 @@ namespace WotDataLib
             hasDrumAnyGun.Entries = wd.Tanks.Where(t => t.Turrets.Any(r => r.Guns.Any(g => g.HasDrum))).Select(tank =>
                 new ExtraEntry(tank.Id, "*", installation.GameVersionId)
             ).ToList();
+
+
             // Has drum
             var hasDrumTopGun = new unresolvedExtraFileCol();
             hasDrumTopGun.PropertyId = new ExtraPropertyId("HasDrum", "TopGun", "Wargaming");
