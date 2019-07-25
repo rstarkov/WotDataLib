@@ -288,7 +288,8 @@ namespace WotDataLib
             var tags1 = Raw["tags"].WdString().Split("\r\n").Select(s => s.Trim()).ToHashSet();
             var tags2 = Raw["tags"].WdString().Split(' ').Select(s => s.Trim()).ToHashSet();
             Tags = tags1.Count > tags2.Count ? tags1 : tags2;
-            NotInShop = Raw.ContainsKey("notInShop") && Raw["notInShop"].GetBool();
+            //Return after 1.5.1.3
+            //NotInShop = Raw.ContainsKey("notInShop") && Raw["notInShop"].GetBool();
             Price = Raw["price"] is JsonDict ? Raw["price"][""].WdInt() : Raw["price"].WdInt();
             Gold = Raw["price"] is JsonDict && Raw["price"].ContainsKey("gold");
 
