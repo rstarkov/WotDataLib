@@ -659,7 +659,7 @@ namespace WotDataLib
         public string Kind { get; set; }
         public decimal Caliber { get; set; }
         public int DamageArmor { get; set; }
-        public int DamageDevices { get; set; }
+        public decimal DamageDevices { get; set; }
         public int Speed { get; set; }
         public decimal PenetrationArmor { get; set; }
 
@@ -675,7 +675,7 @@ namespace WotDataLib
             Kind = shell["kind"].WdString();
             Caliber = shell["caliber"].WdDecimal();
             DamageArmor = shell["damage"]["armor"].WdInt();
-            DamageDevices = shell["damage"]["devices"].WdInt();
+            DamageDevices = shell["damage"]["devices"].WdDecimal();
 
             Price = shell["price"].WdInt();
             Gold = shell["price"] is JsonDict && shell["price"].ContainsKey("gold");
