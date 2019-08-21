@@ -659,6 +659,8 @@ namespace WotDataLib
         public string Kind { get; set; }
         public decimal Caliber { get; set; }
         public int DamageArmor { get; set; }
+        //Return after 1.6.0.2
+        //public int DamageDevices { get; set; }
         public decimal DamageDevices { get; set; }
         public int Speed { get; set; }
         public decimal PenetrationArmor { get; set; }
@@ -675,6 +677,8 @@ namespace WotDataLib
             Kind = shell["kind"].WdString();
             Caliber = shell["caliber"].WdDecimal();
             DamageArmor = shell["damage"]["armor"].WdInt();
+            //Return after 1.6.0.2
+            //DamageDevices = shell["damage"]["devices"].WdInt();
             DamageDevices = shell["damage"]["devices"].WdDecimal();
 
             Price = shell["price"].WdInt();
