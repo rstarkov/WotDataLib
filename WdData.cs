@@ -384,7 +384,7 @@ namespace WotDataLib
         public decimal TerrainResistanceFirm { get; set; }
         public decimal TerrainResistanceMedium { get; set; }
         public decimal TerrainResistanceSoft { get; set; }
-        
+
         public bool HasWheels { get; set; }
 
         public WdChassis(string id, JsonDict chassis, WdData data)

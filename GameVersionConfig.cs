@@ -29,7 +29,7 @@ namespace WotDataLib
 
         public string PathSourceAtlas { get; private set; }
         /// <summary>
-        ///     Pelative path to the directory containing scripts (including "scripts" folder). May refer to a zip file with a 
+        ///     Pelative path to the directory containing scripts (including "scripts" folder). May refer to a zip file with a
         ///     colon separating the path within the zip.
         /// </summary>
         public string PathSourceScripts { get; private set; }
