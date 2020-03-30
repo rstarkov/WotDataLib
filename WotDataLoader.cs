@@ -118,7 +118,7 @@ namespace WotDataLib
                         continue;
                 }
 
-                var kind = tank.NotInShop ? Category.Special : tank.Gold ? Category.Premium : Category.Normal;
+                var kind = tank.Special ? Category.Special : tank.Gold ? Category.Premium : Category.Normal;
 
                 builtin.Entries.Add(
                     new TankEntry(tank.Id, country, tank.Tier, class_, kind, installation.GameVersionId, false)

@@ -251,7 +251,7 @@ namespace WotDataLib
         /// <summary>One of "lightTank", "mediumTank", "heavyTank", "SPG", "AT-SPG", or null if the class was not recognized.</summary>
         public string Class { get; set; }
         public int Tier { get; set; }
-        public bool NotInShop { get; set; }
+        public bool Special { get; set; }
         public int Price { get; set; }
         public bool Gold { get; set; }
         public bool Secret { get; set; }
@@ -288,7 +288,7 @@ namespace WotDataLib
             var tags1 = Raw["tags"].WdString().Split("\r\n").Select(s => s.Trim()).ToHashSet();
             var tags2 = Raw["tags"].WdString().Split(' ').Select(s => s.Trim()).ToHashSet();
             Tags = tags1.Count > tags2.Count ? tags1 : tags2;
-            NotInShop = Raw.ContainsKey("notInShop") && Raw["notInShop"].GetBool(BoolConversionOptions.AllowConversionFromString);
+            Special = Tags.Contains("special") ? true : false;
             Price = Raw["price"] is JsonDict ? Raw["price"][""].WdInt() : Raw["price"].WdInt();
             Gold = Raw["price"] is JsonDict && Raw["price"].ContainsKey("gold");
 
