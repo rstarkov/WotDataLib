@@ -39,6 +39,8 @@ namespace WotDataLib
         Premium,
         /// <summary>This tank cannot be bought at all.</summary>
         Special,
+        /// <summary>This tank is available as a collectors' vehicle.</summary>
+        Collector,
     }
 
 }

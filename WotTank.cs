@@ -15,7 +15,7 @@ namespace WotDataLib
         public int Tier { get; protected set; }
         /// <summary>Tank's class: light/medium/heavy tank, artillery or tank destroyer.</summary>
         public Class Class { get; protected set; }
-        /// <summary>Tank's availability: normal (buyable for silver), premium (buyable for gold), or special (not for sale).</summary>
+        /// <summary>Tank's availability: normal (buyable for silver), premium (buyable for gold), special (not for sale), or collector (collectors' vehicle).</summary>
         public Category Category { get; protected set; }
 
         /// <summary>Gets the context that this tank info belongs to.</summary>

@@ -252,6 +252,7 @@ namespace WotDataLib
         public string Class { get; set; }
         public int Tier { get; set; }
         public bool Special { get; set; }
+        public bool Collector { get; set; }
         public int Price { get; set; }
         public bool Gold { get; set; }
         public bool Secret { get; set; }
@@ -289,6 +290,7 @@ namespace WotDataLib
             var tags2 = Raw["tags"].WdString().Split(' ').Select(s => s.Trim()).ToHashSet();
             Tags = tags1.Count > tags2.Count ? tags1 : tags2;
             Special = Tags.Contains("special") ? true : false;
+            Collector = Tags.Contains("collectorVehicle") ? true : false;
             Price = Raw["price"] is JsonDict ? Raw["price"][""].WdInt() : Raw["price"].WdInt();
             Gold = Raw["price"] is JsonDict && Raw["price"].ContainsKey("gold");
 

@@ -118,7 +118,7 @@ namespace WotDataLib
                         continue;
                 }
 
-                var kind = tank.Special ? Category.Special : tank.Gold ? Category.Premium : Category.Normal;
+                var kind = tank.Collector ? Category.Collector : tank.Special ? Category.Special : tank.Gold ? Category.Premium : Category.Normal;
 
                 builtin.Entries.Add(
                     new TankEntry(tank.Id, country, tank.Tier, class_, kind, installation.GameVersionId, false)
@@ -635,8 +635,9 @@ namespace WotDataLib
                             case "normal": category = Category.Normal; break;
                             case "premium": category = Category.Premium; break;
                             case "special": category = Category.Special; break;
+                            case "collector": category = Category.Collector; break;
                             default: throw new WotDataUserError(WdUtil.Tr.Error.DataFile_UnrecognizedCategory.Fmt(fields[4],
-                                new[] { "normal", "premium", "special" }.JoinString(", ", "\"", "\"")));
+                                new[] { "normal", "premium", "special", "collector" }.JoinString(", ", "\"", "\"")));
                         }
 
                     if (fields.Length > 5 && fields[5] != "")
