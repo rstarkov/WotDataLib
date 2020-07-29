@@ -23,36 +23,44 @@ namespace WotDataLib
         /// <summary>Relative path to the directory containing the tank icons atlas we're creating.</summary>
         public string PathDestinationAtlas { get; private set; }
         /// <summary>
-        ///     Pelative path to the directory containing the tank icons atlas.
-        ///     May refer to a zip file with a colon separating the path within the zip.
-        /// </summary>
-        public string PathSourceAtlas { get; private set; }
-        /// <summary>
         ///     Pelative path to the directory containing scripts (including "scripts" folder).
         ///     May refer to a zip file with a colon separating the path within the zip.
         /// </summary>
         public string PathSourceScripts { get; private set; }
         /// <summary>
+        ///     Pelative path to the directory containing the tank icons atlas.
+        ///     May refer to a zip file with a colon separating the path within the zip.
+        /// </summary>
+        public string PathSourceAtlas { get; private set; }
+        /// <summary>
         ///     Relative path to the directory containing contour tank images.
         ///     May refer to a zip file with a colon separating the path within the zip.
         /// </summary>
-        public List<string> PathSourceContour { get; private set; }
+        public string PathSourceContour { get; private set; }
         /// <summary>
         ///     Relative path to the directory containing 3D tank images.
         ///     May refer to a zip file with a colon separating the path within the zip.
         /// </summary>
-        public List<string> PathSource3D { get; private set; }
+        public string PathSource3D { get; private set; }
         /// <summary>
         ///     Relative path to the directory containing 3D (large) tank images.
         ///     May refer to a zip file with a colon separating the path within the zip.
         /// </summary>
-        public List<string> PathSource3DLarge { get; private set; }
+        public string PathSource3DLarge { get; private set; }
+        /// <summary>
+        ///     Absolute path to the directory containing nation tank images.
+        ///     May refer to a zip file with a colon separating the path within the zip.
+        /// </summary>
         public Dictionary<Country, string> PathSourceCountry { get; private set; }
+        /// <summary>
+        ///     Absolute path to the directory containing class tank images.
+        ///     May refer to a zip file with a colon separating the path within the zip.
+        /// </summary>
         public Dictionary<Class, string> PathSourceClass { get; private set; }
-
+        /// <summary>The number of parts of the "gui.pkg" file.</summary>
+        public int NumberGuiParts { get; internal set; }
         /// <summary>Specifies whether the tank images should be loaded and saved as PNG or TGA.</summary>
         public string TankIconExtension { get; private set; }
-
         /// <summary>Constructor, for use by XmlClassify.</summary>
         private GameVersionConfig() { }
     }

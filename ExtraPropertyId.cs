@@ -54,7 +54,7 @@ namespace WotDataLib
 
         public override string ToString() { return FileId + "/" + (ColumnId == null ? "" : (ColumnId + "/")) + Author; }
 
-        public static bool operator ==(ExtraPropertyId a, ExtraPropertyId b)
+        public static bool operator == (ExtraPropertyId a, ExtraPropertyId b)
         {
             if ((object) a == null && (object) b == null)
                 return true;
@@ -64,7 +64,7 @@ namespace WotDataLib
                 return a.Equals(b);
         }
 
-        public static bool operator !=(ExtraPropertyId a, ExtraPropertyId b)
+        public static bool operator != (ExtraPropertyId a, ExtraPropertyId b)
         {
             return !(a == b);
         }
