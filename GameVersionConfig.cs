@@ -57,12 +57,14 @@ namespace WotDataLib
         ///     May refer to a zip file with a colon separating the path within the zip.
         /// </summary>
         public Dictionary<Class, string> PathSourceClass { get; private set; }
-        /// <summary>The number of parts of the "gui.pkg" file.</summary>
-        public int NumberGuiParts { get; internal set; }
         /// <summary>Specifies whether the tank images should be loaded and saved as PNG or TGA.</summary>
         public string TankIconExtension { get; private set; }
+        /// <summary>
+        ///     Package name with resource for vehicle icon.
+        ///     You can separate the name using a space, comma or a semicolon.
+        /// </summary>
+        public string GuiPackageName { get; internal set; }
         /// <summary>Constructor, for use by XmlClassify.</summary>
         private GameVersionConfig() { }
     }
-
 }
