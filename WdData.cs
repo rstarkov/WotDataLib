@@ -361,10 +361,20 @@ namespace WotDataLib
             Mass = hull["weight"].WdInt();
             HitPoints = hull["maxHealth"].WdInt();
             AmmoBayHealth = hull["ammoBayHealth"]["maxHealth"].WdInt();
-            var armor = hull["primaryArmor"].WdString().Split(' ').Select(s => hull["armor"][s].WdDecimal()).ToArray();
-            ArmorThicknessFront = armor[0];
-            ArmorThicknessSide = armor[1];
-            ArmorThicknessBack = armor[2];
+            // Return after 1.10.1.0
+            if (hull["models"]["undamaged"].GetStringLenientSafe() != "vehicles/russian/R77_KV2_turret_2/normal/lod0/Hull.model")
+            {
+                var armor = hull["primaryArmor"].WdString().Split(' ').Select(s => hull["armor"][s].WdDecimal()).ToArray();
+                ArmorThicknessFront = armor[0];
+                ArmorThicknessSide = armor[1];
+                ArmorThicknessBack = armor[2];
+            }
+            else
+            {
+                ArmorThicknessFront = 750;
+                ArmorThicknessSide = 0;
+                ArmorThicknessBack = 0;
+            }
         }
     }
 
@@ -380,7 +390,8 @@ namespace WotDataLib
         public int HitPoints { get; set; }
         public int MaxLoad { get; set; }
         public int MaxClimbAngle { get; set; }
-        public int RotationSpeed { get; set; }
+        // Return after 1.10.1.0: public int RotationSpeed { get; set; }
+        public decimal RotationSpeed { get; set; }
         public int TrackArmorThickness { get; set; }
 
         public decimal TerrainResistanceFirm { get; set; }
@@ -401,7 +412,8 @@ namespace WotDataLib
             HitPoints = chassis["maxHealth"].WdInt();
             MaxLoad = chassis["maxLoad"].WdInt();
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
-            RotationSpeed = chassis["rotationSpeed"].WdInt();
+            // Return after 1.10.1.0: RotationSpeed = chassis["rotationSpeed"].WdInt();
+            RotationSpeed = chassis["rotationSpeed"].WdDecimal();
 
             try
             {
