@@ -232,10 +232,17 @@ namespace WotDataLib
             Turrets = new Dictionary<string, WdTurret>();
             foreach (var kvp in tanks.GetDict())
             {
-                if (kvp.Key == "xmlns:xmlref")
-                    continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
-                var tank = new WdTank(kvp.Key, kvp.Value.GetDict(), this, data);
-                Tanks.Add(tank.RawId, tank);
+                try
+                {
+                    if (kvp.Key == "xmlns:xmlref")
+                        continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
+                    var tank = new WdTank(kvp.Key, kvp.Value.GetDict(), this, data);
+                    Tanks.Add(tank.RawId, tank);
+                }
+                catch (Exception e)
+                {
+                    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(kvp.Key), e);
+                }
             }
         }
     }
@@ -398,23 +405,28 @@ namespace WotDataLib
             Level = chassis["level"].WdInt();
             Price = chassis["price"].WdInt();
             Mass = chassis["weight"].WdInt();
-            HitPoints = chassis["maxHealth"].WdInt();
+            HitPoints = chassis.ContainsKey("maxHealth") ? chassis["maxHealth"].WdInt() : 0;
             MaxLoad = chassis["maxLoad"].WdInt();
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
             RotationSpeed = chassis["rotationSpeed"].WdInt();
-
-            try
+            if (chassis.ContainsKey("armor"))
             {
-                var leftTrack = chassis["armor"]["leftTrack"].WdInt();
-                var rightTrack = chassis["armor"]["rightTrack"].WdInt();
-                TrackArmorThickness = Math.Max(leftTrack, rightTrack);
+                try
+                {
+                    var leftTrack = chassis["armor"]["leftTrack"].WdInt();
+                    var rightTrack = chassis["armor"]["rightTrack"].WdInt();
+                    TrackArmorThickness = Math.Max(leftTrack, rightTrack);
+                }
+                catch
+                {
+                    var wheelArmor = chassis["armor"]["armor_9"].WdInt();
+                    TrackArmorThickness = wheelArmor;
+                }
             }
-            catch
+            else
             {
-                var wheelArmor = chassis["armor"]["armor_9"].WdInt();
-                TrackArmorThickness = wheelArmor;
+                TrackArmorThickness = 0;
             }
-
             var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
             TerrainResistanceFirm = terr[0];
             TerrainResistanceMedium = terr[1];
