@@ -234,7 +234,7 @@ namespace WotDataLib
             {
                 try
                 {
-                    if (kvp.Key == "xmlns:xmlref")
+                    if (kvp.Key == "xmlns:xmlref" || kvp.Key == "")
                         continue; // this tank is weird; it's the only one which has non-"shared" modules with identical keys to another tank. Ignore it.
                     var tank = new WdTank(kvp.Key, kvp.Value.GetDict(), this, data);
                     Tanks.Add(tank.RawId, tank);
@@ -327,7 +327,7 @@ namespace WotDataLib
 
             FullName = data.ResolveString(Raw["userString"].WdString());
             ShortName = Raw.ContainsKey("shortUserString") ? data.ResolveString(Raw["shortUserString"].WdString()) : FullName;
-            Description = data.ResolveString(Raw["description"].WdString());
+            Description = Raw.ContainsKey("description") ? data.ResolveString(Raw["description"].WdString()) : "";
 
             MaxSpeedForward = RawExtra["speedLimits"]["forward"].WdDecimal();
             MaxSpeedReverse = RawExtra["speedLimits"]["backward"].WdDecimal();
@@ -368,10 +368,11 @@ namespace WotDataLib
             Mass = hull["weight"].WdInt();
             HitPoints = hull["maxHealth"].WdInt();
             AmmoBayHealth = hull["ammoBayHealth"]["maxHealth"].WdInt();
-            var armor = hull["primaryArmor"].WdString().Split(' ').Select(s => hull["armor"][s].WdDecimal()).ToArray();
-            ArmorThicknessFront = armor[0];
-            ArmorThicknessSide = armor[1];
-            ArmorThicknessBack = armor[2];
+            //var armor = hull["primaryArmor"].WdString().Split(' ').Select(s => hull["armor"][s].WdDecimal()).ToArray();
+            var armors = hull["primaryArmor"].WdString().Split(' ');
+            ArmorThicknessFront = hull["armor"].ContainsKey(armors[0]) ? hull["armor"][armors[0]].WdDecimal() : 0;
+            ArmorThicknessSide = hull["armor"].ContainsKey(armors[1]) ? hull["armor"][armors[1]].WdDecimal() : 0;
+            ArmorThicknessBack = hull["armor"].ContainsKey(armors[2]) ? hull["armor"][armors[0]].WdDecimal() : 0;
         }
     }
 
@@ -387,7 +388,7 @@ namespace WotDataLib
         public int HitPoints { get; set; }
         public int MaxLoad { get; set; }
         public int MaxClimbAngle { get; set; }
-        public int RotationSpeed { get; set; }
+        public decimal RotationSpeed { get; set; }
         public int TrackArmorThickness { get; set; }
 
         public decimal TerrainResistanceFirm { get; set; }
@@ -408,7 +409,7 @@ namespace WotDataLib
             HitPoints = chassis.ContainsKey("maxHealth") ? chassis["maxHealth"].WdInt() : 0;
             MaxLoad = chassis["maxLoad"].WdInt();
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
-            RotationSpeed = chassis["rotationSpeed"].WdInt();
+            RotationSpeed = chassis["rotationSpeed"].WdDecimal();
             if (chassis.ContainsKey("armor"))
             {
                 try
