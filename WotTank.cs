@@ -18,6 +18,8 @@ namespace WotDataLib
         /// <summary>Tank's availability: normal (buyable for silver), premium (buyable for gold), special (not for sale), or collector (collectors' vehicle).</summary>
         public Category Category { get; protected set; }
 
+        public string ImageName { get; protected set; }
+
         /// <summary>Gets the context that this tank info belongs to.</summary>
         public WotContext Context { get; protected set; }
 
@@ -30,7 +32,7 @@ namespace WotDataLib
 
         private WotTank() { }
 
-        public WotTank(string tankId, Country country, int tier, Class class_, Category category, IEnumerable<KeyValuePair<ExtraPropertyId, string>> extras, WotContext context)
+        public WotTank(string tankId, Country country, int tier, Class class_, Category category, string imageName, IEnumerable<KeyValuePair<ExtraPropertyId, string>> extras, WotContext context)
         {
             TankId = tankId;
             Country = country;
@@ -38,6 +40,7 @@ namespace WotDataLib
             Class = class_;
             Category = category;
             Context = context;
+            ImageName = imageName;
             _extras = extras.ToDictionary();
         }
 
@@ -49,6 +52,7 @@ namespace WotDataLib
             Class = tank.Class;
             Category = tank.Category;
             Context = tank.Context;
+            ImageName = tank.ImageName;
             _extras = tank._extras;
             ClientData = tank.ClientData;
         }
