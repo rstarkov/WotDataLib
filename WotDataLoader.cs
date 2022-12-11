@@ -586,6 +586,7 @@ namespace WotDataLib
                     Category? category = null;
                     int? gameVersionId = null;
                     bool delete = false;
+                    string imageName = fields[0];
 
                     if (fields.Length > 1 && fields[1] != "")
                         switch (fields[1])
@@ -656,7 +657,12 @@ namespace WotDataLib
                             throw new WotDataUserError("The very last column must contain the text \"del\" or nothing.");
                     }
 
-                    return new TankEntry(tankId, country, tier, class_, category, gameVersionId, delete);
+                    if (fields.Length > 7 && fields[7] != "")
+                    {
+                        imageName = fields[7];
+                    }
+
+                    return new TankEntry(tankId, country, tier, class_, category, gameVersionId, delete, imageName);
                 }
                 catch (Exception e)
                 {
@@ -1004,6 +1010,7 @@ namespace WotDataLib
                 var tier = Ut.OnExceptionDefault(() => applicable.Where(e => e.Tier != null).Last().Tier, null);
                 var class_ = Ut.OnExceptionDefault(() => applicable.Where(e => e.Class != null).Last().Class, null);
                 var category = Ut.OnExceptionDefault(() => applicable.Where(e => e.Category != null).Last().Category, null);
+                var imageName = Ut.OnExceptionDefault(() => applicable.Where(e => e.ImageName != null).Last().ImageName, null);
                 if (country == null || tier == null || class_ == null || category == null)
                 {
                     warnings.Add("Built-in data for tank {0} is unresolvable: one of the basic properties (country, tier, class or availability) is completely missing after all the inheritance has been resolved.".Fmt(builtin.Key));
@@ -1025,7 +1032,7 @@ namespace WotDataLib
                     );
                     extrasResolved.Add(extra.PropertyId);
                 }
-                context.Tanks.Add(new WotTank(builtin.Key, country.Value, tier.Value, class_.Value, category.Value, props, context));
+                context.Tanks.Add(new WotTank(builtin.Key, country.Value, tier.Value, class_.Value, category.Value, imageName, props, context));
             }
 
             foreach (var prop in extrasResolved)
@@ -1047,8 +1054,9 @@ namespace WotDataLib
 
             public int? GameVersionId { get; private set; }
             public bool Delete { get; private set; }
+            public string ImageName { get; private set; }
 
-            public TankEntry(string tankId, Country? country, int? tier, Class? class_, Category? category, int? gameVersionId, bool delete)
+            public TankEntry(string tankId, Country? country, int? tier, Class? class_, Category? category, int? gameVersionId, bool delete, string imageName = null)
             {
                 TankId = tankId;
                 Country = country;
@@ -1057,6 +1065,7 @@ namespace WotDataLib
                 Category = category;
                 GameVersionId = gameVersionId;
                 Delete = delete;
+                ImageName = imageName == null ? tankId : imageName;
             }
 
             public override string ToString()
