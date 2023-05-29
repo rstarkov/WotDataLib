@@ -241,7 +241,7 @@ namespace WotDataLib
                 }
                 catch (Exception e)
                 {
-                    throw new WotDataException("Could not parse game data for country \"{0}\"".Fmt(kvp.Key), e);
+                    throw new WotDataException("Could not parse game data for vehicle \"{0}\"".Fmt(kvp.Key), e);
                 }
             }
         }
@@ -410,23 +410,17 @@ namespace WotDataLib
             MaxLoad = chassis["maxLoad"].WdInt();
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
             RotationSpeed = chassis["rotationSpeed"].WdDecimal();
+            TrackArmorThickness = 0;
             if (chassis.ContainsKey("armor"))
             {
-                try
+                string[] ChassisArmors = { "leftTrack", "rightTrack", "armor_9", "armor_15" };
+                foreach (string armor in ChassisArmors)
                 {
-                    var leftTrack = chassis["armor"]["leftTrack"].WdInt();
-                    var rightTrack = chassis["armor"]["rightTrack"].WdInt();
-                    TrackArmorThickness = Math.Max(leftTrack, rightTrack);
+                    if (chassis["armor"].ContainsKey(armor))
+                    {
+                        TrackArmorThickness = Math.Max(TrackArmorThickness, chassis["armor"][armor].WdInt());
+                    }
                 }
-                catch
-                {
-                    var wheelArmor = chassis["armor"]["armor_9"].WdInt();
-                    TrackArmorThickness = wheelArmor;
-                }
-            }
-            else
-            {
-                TrackArmorThickness = 0;
             }
             var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
             TerrainResistanceFirm = terr[0];
