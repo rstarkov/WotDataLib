@@ -414,12 +414,17 @@ namespace WotDataLib
             if (chassis.ContainsKey("armor"))
             {
                 string[] ChassisArmors = { "leftTrack", "rightTrack", "armor_9", "armor_15" };
-                foreach (string armor in ChassisArmors)
+                IEnumerable<string> ChassisArmor = chassis["armor"].Keys.Intersect<string>(ChassisArmors);
+                if (ChassisArmor.Count() > 0)
                 {
-                    if (chassis["armor"].ContainsKey(armor))
+                    foreach (string armor in ChassisArmor)
                     {
                         TrackArmorThickness = Math.Max(TrackArmorThickness, chassis["armor"][armor].WdInt());
                     }
+                }
+                else
+                {
+                    data.Warnings.Add("Unable to get chassis armor for {0}".Fmt(chassis["userString"]));
                 }
             }
             var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
@@ -427,10 +432,7 @@ namespace WotDataLib
             TerrainResistanceMedium = terr[1];
             TerrainResistanceSoft = terr[2];
 
-            if (chassis.ContainsKey("tracks"))
-                HasWheels = false;
-            else
-                HasWheels = true;
+            HasWheels = !chassis.ContainsKey("tracks");
         }
     }
 
