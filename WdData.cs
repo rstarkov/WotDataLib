@@ -407,7 +407,7 @@ namespace WotDataLib
             Price = chassis["price"].WdInt();
             Mass = chassis["weight"].WdInt();
             HitPoints = chassis.ContainsKey("maxHealth") ? chassis["maxHealth"].WdInt() : 0;
-            MaxLoad = chassis["maxLoad"].WdInt();
+            MaxLoad = chassis.ContainsKey("maxLoad") ? chassis["maxLoad"].WdInt() : 0;
             MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
             RotationSpeed = chassis["rotationSpeed"].WdDecimal();
             TrackArmorThickness = 0;
