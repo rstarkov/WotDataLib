@@ -685,8 +685,29 @@ namespace WotDataLib
 
             Kind = shell["kind"].WdString();
             Caliber = shell["caliber"].WdDecimal();
-            DamageArmor = shell["damage"]["armor"].WdInt();
-            DamageDevices = shell["damage"]["devices"].WdDecimal();
+            var damage_armor = shell["damage"]["armor"];
+            if (damage_armor is JsonNumber)
+            {
+                DamageArmor = damage_armor.WdInt();
+            }
+            else
+            {
+                // For shells with variable damage the maximum damage is selected.
+                //DamageArmor = damage_armor.WdString().Split(' ').Select(int.Parse).ToArray()[0];
+                DamageArmor = Convert.ToInt32(damage_armor.WdString().Split(' ')[0]);
+            }
+
+            var damage_device = shell["damage"]["devices"];
+            if (damage_device is JsonNumber)
+            {
+                DamageDevices = damage_device.WdDecimal();
+            }
+            else
+            {
+                // For shells with variable damage the maximum damage is selected.
+                //DamageDevices = damage_device.WdString().Split(' ').Select(x => decimal.Parse(x, NumberStyles.Float, CultureInfo.InvariantCulture)).ToArray()[0];
+                DamageDevices = Convert.ToDecimal(damage_device.WdString().Split(' ')[0], CultureInfo.InvariantCulture);
+            }
 
             Price = shell["price"].WdInt();
             Gold = shell["price"] is JsonDict && shell["price"].ContainsKey("gold");
