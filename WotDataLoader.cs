@@ -612,7 +612,7 @@ namespace WotDataLib
                         int tierNN;
                         if (!int.TryParse(fields[2], out tierNN))
                             throw new WotDataUserError(string.Format(WdUtil.Tr.Error.DataFile_TankTierValue, fields[2]));
-                        if (tierNN < 0 || tierNN > 10)
+                        if (tierNN < 0 || tierNN > 11)
                             throw new WotDataUserError(string.Format(WdUtil.Tr.Error.DataFile_TankTierValue, fields[2]));
                         tier = tierNN;
                     }

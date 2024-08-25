@@ -399,40 +399,48 @@ namespace WotDataLib
 
         public WdChassis(string id, JsonDict chassis, WdData data)
         {
-            Raw = chassis;
-            Id = id;
-            Name = data.ResolveString(chassis["userString"].WdString());
-
-            Level = chassis["level"].WdInt();
-            Price = chassis["price"].WdInt();
-            Mass = chassis["weight"].WdInt();
-            HitPoints = chassis.ContainsKey("maxHealth") ? chassis["maxHealth"].WdInt() : 0;
-            MaxLoad = chassis.ContainsKey("maxLoad") ? chassis["maxLoad"].WdInt() : 0;
-            MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
-            RotationSpeed = chassis["rotationSpeed"].WdDecimal();
-            TrackArmorThickness = 0;
-            if (chassis.ContainsKey("armor"))
+            try
             {
-                string[] ChassisArmors = { "leftTrack", "rightTrack", "armor_9", "armor_15" };
-                IEnumerable<string> ChassisArmor = chassis["armor"].Keys.Intersect<string>(ChassisArmors);
-                if (ChassisArmor.Count() > 0)
+                Raw = chassis;
+                Id = id;
+                Name = data.ResolveString(chassis["userString"].WdString());
+
+                Level = chassis["level"].WdInt();
+                Price = chassis["price"].WdInt();
+                Mass = chassis["weight"].WdInt();
+                HitPoints = chassis.ContainsKey("maxHealth") ? chassis["maxHealth"].WdInt() : 0;
+                MaxLoad = chassis.ContainsKey("maxLoad") ? chassis["maxLoad"].WdInt() : 0;
+                MaxClimbAngle = chassis["maxClimbAngle"].WdInt();
+                RotationSpeed = chassis["rotationSpeed"].WdDecimal();
+                TrackArmorThickness = 0;
+                if (chassis.ContainsKey("armor"))
                 {
-                    foreach (string armor in ChassisArmor)
+                    string[] ChassisArmors = { "leftTrack", "rightTrack", "armor_9", "armor_15" };
+                    IEnumerable<string> ChassisArmor = chassis["armor"].Keys.Intersect<string>(ChassisArmors);
+                    if (ChassisArmor.Count() > 0)
                     {
-                        TrackArmorThickness = Math.Max(TrackArmorThickness, chassis["armor"][armor].WdInt());
+                        foreach (string armor in ChassisArmor)
+                        {
+                            TrackArmorThickness = Math.Max(TrackArmorThickness, chassis["armor"][armor].WdInt());
+                        }
+                    }
+                    else
+                    {
+                        data.Warnings.Add("Unable to get chassis armor for {0}".Fmt(chassis["userString"]));
                     }
                 }
-                else
-                {
-                    data.Warnings.Add("Unable to get chassis armor for {0}".Fmt(chassis["userString"]));
-                }
-            }
-            var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
-            TerrainResistanceFirm = terr[0];
-            TerrainResistanceMedium = terr[1];
-            TerrainResistanceSoft = terr[2];
+                var terr = chassis["terrainResistance"].WdString().Split(' ').Select(s => decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture)).ToList();
+                TerrainResistanceFirm = terr[0];
+                TerrainResistanceMedium = terr[1];
+                TerrainResistanceSoft = terr[2];
 
-            HasWheels = !chassis.ContainsKey("tracks");
+                HasWheels = !chassis.ContainsKey("tracks");
+            }
+            catch
+            {
+                return;
+            }
+
         }
     }
 

@@ -11,7 +11,7 @@ namespace WotDataLib
     static class WdUtil
     {
         /// <summary>Roman numerals for the tank tiers, hence only the values 1-10 are required.</summary>
-        public static readonly string[] RomanNumerals = new[] { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
+        public static readonly string[] RomanNumerals = new[] { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI" };
 
         /// <summary>Provides a shorter way of accessing the active translation.</summary>
         public static Translation Tr { get { return WotData.Translation; } }
