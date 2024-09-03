@@ -372,7 +372,7 @@ namespace WotDataLib
             var armors = hull["primaryArmor"].WdString().Split(' ');
             ArmorThicknessFront = hull["armor"].ContainsKey(armors[0]) ? hull["armor"][armors[0]].WdDecimal() : 0;
             ArmorThicknessSide = hull["armor"].ContainsKey(armors[1]) ? hull["armor"][armors[1]].WdDecimal() : 0;
-            ArmorThicknessBack = hull["armor"].ContainsKey(armors[2]) ? hull["armor"][armors[0]].WdDecimal() : 0;
+            ArmorThicknessBack = hull["armor"].ContainsKey(armors[2]) ? hull["armor"][armors[2]].WdDecimal() : 0;
         }
     }
 
