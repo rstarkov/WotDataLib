@@ -163,7 +163,20 @@ namespace WotDataLib
 
             if (!_moFiles.ContainsKey(file))
             {
-                var filename = Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo");
+                var filename = "";
+                var path_lc_messages = VersionConfig.PathMoFiles.Split('|');
+                foreach (var path_lc_message in path_lc_messages)
+                {
+                    filename = Path.Combine(Installation.Path, path_lc_message, file + ".mo");
+                    if (File.Exists(filename))
+                    {
+                        break;
+                    }
+                }                
+                if (filename == "")
+                {
+                    filename = Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo");
+                }
                 if (File.Exists(filename))
                     _moFiles[file] = MoReader.ReadFile(filename);
             }
