@@ -16,6 +16,7 @@ namespace WotDataLib
         Sweden,
         Poland,
         Italy,
+        Intunion,
         None,
     }
 
