@@ -25,7 +25,7 @@ namespace WotDataLib
             Installation = installation;
             VersionConfig = versionConfig;
 
-            IList<string> countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan", "czech", "sweden", "poland", "italy" };
+            IList<string> countries = new[] { "ussr", "germany", "usa", "france", "china", "uk", "japan", "czech", "sweden", "poland", "italy", "intunion" };
             countries =
                 countries.Where(
                     c =>

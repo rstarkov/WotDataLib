@@ -100,6 +100,7 @@ namespace WotDataLib
                     case "sweden": country = Country.Sweden; break;
                     case "poland": country = Country.Poland; break;
                     case "italy": country = Country.Italy; break;
+                    case "intunion": country = Country.Intunion; break;
                     default:
                         warnings.Add("Unknown country in game data: " + tank.Country.Name);
                         continue;
@@ -602,9 +603,10 @@ namespace WotDataLib
                             case "sweden": country = Country.Sweden; break;
                             case "poland": country = Country.Poland; break;
                             case "italy": country = Country.Italy; break;
+                            case "intunion": country = Country.Intunion; break;
                             case "none": country = Country.None; break;
                             default: throw new WotDataUserError(WdUtil.Tr.Error.DataFile_UnrecognizedCountry.Fmt(fields[1],
-                                new[] { "ussr", "germany", "usa", "china", "france", "uk", "japan", "czech", "sweden", "poland", "italy", "none" }.JoinString(", ", "\"", "\"")));
+                                new[] { "ussr", "germany", "usa", "china", "france", "uk", "japan", "czech", "sweden", "poland", "italy", "intunion", "none" }.JoinString(", ", "\"", "\"")));
                         }
 
                     if (fields.Length > 2 && fields[2] != "")
