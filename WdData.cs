@@ -172,7 +172,7 @@ namespace WotDataLib
                     {
                         break;
                     }
-                }                
+                }
                 if (filename == "")
                 {
                     filename = Path.Combine(Installation.Path, @"res\text\LC_MESSAGES", file + ".mo");
