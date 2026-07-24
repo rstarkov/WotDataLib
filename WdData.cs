@@ -222,6 +222,11 @@ namespace WotDataLib
             {
                 if (kvp.Key == "icons")
                     continue;
+                if (!(kvp.Value is RT.Util.Json.JsonDict))
+                {
+                    data.Warnings.Add("Skipping unexpected shells entry \"{0}\" of type {1}.".Fmt(kvp.Key, kvp.Value.GetType().Name));
+                    continue;
+                }
                 var shell = new WdShell(kvp.Key, kvp.Value.GetDict(), data);
                 Shells.Add(kvp.Key, shell);
             }
